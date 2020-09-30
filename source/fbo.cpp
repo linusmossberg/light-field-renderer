@@ -28,6 +28,11 @@ FBO::FBO(const glm::ivec2 &size) : size(size)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+FBO::~FBO()
+{
+    glDeleteFramebuffers(1, &handle);
+}
+
 void FBO::bind()
 {
     glGetIntegerv(GL_VIEWPORT, prev_viewport);

@@ -8,6 +8,7 @@ class CameraArray
 {
 public:
     CameraArray(const std::filesystem::path& path);
+    ~CameraArray();
 
     void bind(size_t index, int eye_loc, int VP_loc = -1);
 

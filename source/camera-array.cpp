@@ -179,6 +179,14 @@ CameraArray::CameraArray(const std::filesystem::path& path)
     }
 }
 
+CameraArray::~CameraArray()
+{
+    for (const auto &c : cameras)
+    {
+        glDeleteTextures(1, &c.texture);
+    }
+}
+
 void CameraArray::bind(size_t index, int eye_loc, int VP_loc)
 {
     const auto& c = cameras.at(index);

@@ -49,6 +49,11 @@ MyShader::MyShader(const char* vert_source, const char* frag_source)
     use();
 }
 
+MyShader::~MyShader()
+{
+    glDeleteProgram(handle);
+}
+
 int MyShader::getLocation(const char* name)
 {
     GLint loc = glGetUniformLocation(handle, name);

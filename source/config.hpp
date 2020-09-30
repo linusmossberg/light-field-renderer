@@ -18,24 +18,27 @@ public:
         Property(float value, float min, float max, float scale = 1.0f)
             : value(value * scale), min(min * scale), max(max * scale), range((max - min) * scale), scale(scale) { }
 
-        float get() { return value; }
-        float getRange() { return range; }
-        float getMin() { return min; }
-        float getMax() { return max; }
-        float getNormalized() { return (value - min) / range; }
-        float getDisplay() { return value / scale; }
+        operator float() const { return value; }
 
-        void add(float v) { set(value + v); }
-        bool valid() { return min <= value && max >= value; }
-
-        void setNormalized(float v) { set(min + v * range); }
-
-        void set(float v)
+        void operator=(const float &v)
         {
             if (v > max) value = max;
             else if (v < min) value = min;
             else value = v;
         }
+
+        void operator+=(const float &v)
+        {
+            *this = value + v;
+        }
+
+        float getRange() { return range; }
+        float getNormalized() { return (value - min) / range; }
+        float getDisplay() { return value / scale; }
+
+        bool valid() { return min <= value && max >= value; }
+
+        void setNormalized(float v) { *this = min + v * range; }
 
     private:
         float value, min, max, range, scale;

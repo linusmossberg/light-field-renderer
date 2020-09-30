@@ -20,7 +20,7 @@ private:
     struct PropertySlider
     {
         PropertySlider(nanogui::Slider* slider, Config::Property* prop)
-            : slider(slider), prop(prop), last_value(prop->get()) { }
+            : slider(slider), prop(prop), last_value(*prop) { }
 
         nanogui::Slider* slider;
         Config::Property* prop;
@@ -29,12 +29,12 @@ private:
 
         void updateSliderValue()
         {
-            if (std::abs(prop->get() - last_value) > 1e-6f)
+            if (std::abs(*prop - last_value) > 1e-5f)
             {
                 float v = prop->getNormalized();
                 slider->set_value(v);
                 slider->callback()(v);
-                last_value = prop->get();
+                last_value = *prop;
             }
         }
     };

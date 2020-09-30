@@ -48,7 +48,9 @@ public:
 
     std::vector<bool> moves = std::vector<bool>(Move::NUM, false);
 
-    bool navigation = false;
+    bool target_movement = false;
+
+    bool mouse_navigation = false;
 
 private:
     std::shared_ptr<Config> cfg;

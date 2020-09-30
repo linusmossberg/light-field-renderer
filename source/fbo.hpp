@@ -6,6 +6,7 @@ class FBO
 {
 public:
     FBO(const glm::ivec2 &size);
+    ~FBO();
 
     void bind();
 

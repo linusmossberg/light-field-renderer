@@ -36,6 +36,7 @@ Application::Application() : Screen(Vector2i(1280, 720), "Light Field", true, fa
     b->set_callback([this]
     {
         std::string path = file_dialog({ {"cfg", "Configuration File"}, {"jpg", "Configuration File"} }, false);
+        if (path.empty()) return;
         try
         {
             cfg->open(path);
@@ -88,7 +89,35 @@ Application::Application() : Screen(Vector2i(1280, 720), "Light Field", true, fa
     addSlider("F-Stop", "", cfg->f_stop, 1);
     addSlider("Focus Distance", "m", cfg->focus_distance, 1);
 
+    new Label(window, "Navigation", "sans-bold", 20);
+    Widget* panel = new Widget(window);
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill, 0, 5));
+
+    Button* free = new Button(panel, "Free", FA_STREET_VIEW);
+    free->set_flags(Button::Flags::ToggleButton);
+    free->set_pushed(!light_field_renderer->target_movement);
+    free->set_fixed_height(20);
+    free->set_tooltip("The camera is rotated freely with the mouse.");
+
+    Button* target = new Button(panel, "Target", FA_BULLSEYE);
+    target->set_flags(Button::Flags::ToggleButton);
+    target->set_pushed(light_field_renderer->target_movement);
+    target->set_fixed_height(20);
+    target->set_tooltip("The camera looks at the center of the scene and the mouse controls the camera position.");
+
+    free->set_callback([this, target]
+    {
+        light_field_renderer->target_movement = false;
+        target->set_pushed(false);
+    });
+    target->set_callback([this, free]()
+    {
+        light_field_renderer->target_movement = true;
+        free->set_pushed(false);
+    });
+
     new Label(window, "Camera Transform", "sans-bold", 20);
+
     addSlider("X", "m", cfg->x, 2);
     addSlider("Y", "m", cfg->y, 2);
     addSlider("Z", "m", cfg->z, 1);
@@ -96,7 +125,7 @@ Application::Application() : Screen(Vector2i(1280, 720), "Light Field", true, fa
     addSlider("Yaw", "°", cfg->yaw, 1);
     addSlider("Pitch", "°", cfg->pitch, 1);
 
-    auto ls_label = new Label(window, "Light Slab Settings", "sans-bold", 20);
+    new Label(window, "Light Slab Settings", "sans-bold", 20);
     addSlider("st Width", "m", cfg->st_width, 1);
     addSlider("st Distance", "m", cfg->st_distance, 1);
 

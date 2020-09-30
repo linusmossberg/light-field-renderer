@@ -5,6 +5,8 @@ class Quad
 public:
     Quad();
 
+    ~Quad();
+
     void bind();
 
     void draw();
