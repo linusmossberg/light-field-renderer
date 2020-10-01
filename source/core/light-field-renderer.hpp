@@ -6,8 +6,8 @@
 
 #include <glm/glm.hpp>
 
-#include "shader.hpp"
-#include "quad.hpp"
+#include "../gl-util/shader.hpp"
+#include "../gl-util/quad.hpp"
 
 class CameraArray;
 class FBO;

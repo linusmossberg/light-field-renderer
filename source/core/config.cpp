@@ -3,17 +3,17 @@
 #include <fstream>
 #include <sstream>
 
-#include "constants.hpp"
+constexpr float PI = 3.14159265358979323846f;
 
 void Config::open(std::filesystem::path path)
 {
-    image_folder = path.parent_path().string();
+    folder = path.parent_path().string();
 
     defaults();
 
     if (path.extension() != ".cfg")
     {
-        path = std::filesystem::path(image_folder) / "config.cfg";
+        path = std::filesystem::path(folder) / "config.cfg";
     }
 
     if (std::filesystem::exists(path))
@@ -48,11 +48,12 @@ void Config::open(std::filesystem::path path)
             else if (name == "focus-distance") readProperty(focus_distance);
             else if (name == "st-width")       readProperty(st_width);
             else if (name == "st-distance")    readProperty(st_distance);
+            else if (name == "target_depth")   readProperty(target_depth);
             else if (name == "x")              readProperty(x);
             else if (name == "y")              readProperty(y);
             else if (name == "z")              readProperty(z);
-            else if (name == "yaw")            readProperty(yaw);
-            else if (name == "pitch")          readProperty(pitch);
+            else if (name == "yaw")            readProperty(yaw, PI / 180.0f);
+            else if (name == "pitch")          readProperty(pitch, PI / 180.0f);
         }
     }
 }
@@ -65,11 +66,12 @@ void Config::defaults()
     focus_distance = Property(1.0f, 0.5f, 5.0f);
     st_width = Property(1.0f, 0.1f, 2.0f);
     st_distance = Property(1.0f, 0.1f, 2.0f);
+    target_depth = Property(3.0f, 0.0f, 10.0f);
 
     x = Property(0.0f, -3.0f, 3.0f);
     y = Property(0.0f, -3.0f, 3.0f);
     z = Property(0.2f, -3.0f, 3.0f);
 
-    pitch = Property(0.0f, -89.9f, 89.9f, C::PI / 180.0f);
-    yaw = Property(0.0f, -89.9f, 89.9f, C::PI / 180.0f);
+    pitch = Property(0.0f, -89.9f, 89.9f, PI / 180.0f);
+    yaw = Property(0.0f, -89.9f, 89.9f, PI / 180.0f);
 }

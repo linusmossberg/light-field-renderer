@@ -1,11 +1,12 @@
 #include <nanogui/nanogui.h>
 
 #include <iostream>
-#include <memory>
-#include <filesystem>
-#include <fstream>
+#include <exception>
 
-#include "application.hpp"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include "core/application.hpp"
 
 int main() 
 {
@@ -17,7 +18,7 @@ int main()
             app->dec_ref();
             app->draw_all();
             app->set_visible(true);
-            nanogui::mainloop(1 / 60.f * 1000);
+            nanogui::mainloop(1000.0f / 60.f);
         }
         nanogui::shutdown();
     }

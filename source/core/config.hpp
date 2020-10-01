@@ -27,10 +27,8 @@ public:
             else value = v;
         }
 
-        void operator+=(const float &v)
-        {
-            *this = value + v;
-        }
+        void operator+=(const float &v) { *this = value + v; }
+        void operator-=(const float &v) { *this = value - v; }
 
         float getRange() { return range; }
         float getNormalized() { return (value - min) / range; }
@@ -50,6 +48,7 @@ public:
     Property focus_distance;
     Property st_width;
     Property st_distance;
+    Property target_depth;
 
     Property x;
     Property y;
@@ -58,5 +57,5 @@ public:
     Property pitch;
     Property yaw;
 
-    std::string image_folder;
+    std::string folder;
 };

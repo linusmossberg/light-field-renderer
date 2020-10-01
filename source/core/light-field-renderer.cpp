@@ -11,16 +11,15 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "../shaders/light-field-renderer.vert"
+#include "../shaders/light-field-renderer.frag"
+#include "../shaders/data-camera-projections.vert"
+#include "../shaders/screen.vert"
+#include "../shaders/normalize-aperture-weights.frag"
+
 #include "config.hpp"
-
-#include "shaders/light-field-renderer.vert"
-#include "shaders/light-field-renderer.frag"
-#include "shaders/data-camera-projections.vert"
-#include "shaders/screen.vert"
-#include "shaders/normalize-aperture-weights.frag"
-
-#include "fbo.hpp"
 #include "camera-array.hpp"
+#include "../gl-util/fbo.hpp"
 
 LightFieldRenderer::LightFieldRenderer(Widget* parent, const glm::ivec2 &fixed_size, const std::shared_ptr<Config> &cfg)
     : Canvas(parent, 1, false), draw_shader(screen_vert, normalize_aperture_weights_frag), quad(), cfg(cfg)
@@ -133,7 +132,7 @@ void LightFieldRenderer::performMovement()
 
         if (target_movement)
         {
-            forward = glm::normalize(glm::vec3(-eye.x, -eye.y, -cfg->focus_distance));
+            forward = glm::normalize(glm::vec3(-eye.x, -eye.y, -eye.z - cfg->target_depth));
             cfg->pitch = std::asin(forward.x);
             cfg->yaw = std::atan2(-forward.y, -forward.z);
         }
@@ -145,7 +144,7 @@ void LightFieldRenderer::open()
 {
     try
     {
-        camera_array = std::make_unique<CameraArray>(cfg->image_folder);
+        camera_array = std::make_unique<CameraArray>(cfg->folder);
 
         if (!camera_array->light_slab)
         {
@@ -179,7 +178,7 @@ bool LightFieldRenderer::mouse_drag_event(const nanogui::Vector2i& p, const nano
             float scale = glm::length(camera_array->uv_size);
             cfg->x += scale * rel.x() / (float)fb_size.x;
             cfg->y += scale * -rel.y() / (float)fb_size.y;
-            forward = glm::normalize(glm::vec3(-cfg->x, -cfg->y, -cfg->focus_distance));
+            forward = glm::normalize(glm::vec3(-cfg->x, -cfg->y, -cfg->z - cfg->target_depth));
         }
         else
         {

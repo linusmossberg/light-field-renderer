@@ -6,7 +6,6 @@
 #include <GLFW/glfw3.h>
 
 #include "light-field-renderer.hpp"
-#include "constants.hpp"
 
 using namespace nanogui;
 
@@ -104,6 +103,8 @@ Application::Application() : Screen(Vector2i(1280, 720), "Light Field", true, fa
     target->set_pushed(light_field_renderer->target_movement);
     target->set_fixed_height(20);
     target->set_tooltip("The camera looks at the center of the scene and the mouse controls the camera position.");
+
+    addSlider("Target Depth", "m", cfg->target_depth, 1);
 
     free->set_callback([this, target]
     {
