@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <glm/glm.hpp>
 
 class Config
 {
@@ -37,6 +38,7 @@ public:
         bool valid() { return min <= value && max >= value; }
 
         void setNormalized(float v) { *this = min + v * range; }
+        void setDisplay(float v) { *this = v * scale; }
 
     private:
         float value, min, max, range, scale;
@@ -46,9 +48,13 @@ public:
     Property sensor_width;
     Property f_stop;
     Property focus_distance;
+    Property aperture_falloff;
     Property st_width;
     Property st_distance;
-    Property target_depth;
+
+    Property target_x;
+    Property target_y;
+    Property target_z;
 
     Property x;
     Property y;

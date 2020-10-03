@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-FBO::FBO(const glm::ivec2 &size) : size(size)
+FBO::FBO(const glm::ivec2 &size) : size(size), data(size.x * size.y, glm::vec4(0.0f))
 {
     glGenFramebuffers(1, &handle);
     glBindFramebuffer(GL_FRAMEBUFFER, handle);
@@ -62,4 +62,23 @@ void FBO::unBind()
 void FBO::bindTexture()
 {
     glBindTexture(GL_TEXTURE_2D, texture);
+}
+
+float FBO::getMaxAlpha()
+{
+    glReadPixels(0, 0, size.x, size.y, GL_RGBA, GL_FLOAT, data.data());
+
+    float max_alpha = 0.0f;
+    for (int y = 0; y < size.y; y++)
+    {
+        for (int x = 0; x < size.x; x++)
+        {
+            float alpha = data[y * size.y + x].a;
+            if (alpha > max_alpha)
+            {
+                max_alpha = alpha;
+            }
+        }
+    }
+    return max_alpha;
 }

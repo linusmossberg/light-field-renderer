@@ -48,10 +48,6 @@ void Config::open(std::filesystem::path path)
             else if (name == "focus-distance") readProperty(focus_distance);
             else if (name == "st-width")       readProperty(st_width);
             else if (name == "st-distance")    readProperty(st_distance);
-            else if (name == "target_depth")   readProperty(target_depth);
-            else if (name == "x")              readProperty(x);
-            else if (name == "y")              readProperty(y);
-            else if (name == "z")              readProperty(z);
             else if (name == "yaw")            readProperty(yaw, PI / 180.0f);
             else if (name == "pitch")          readProperty(pitch, PI / 180.0f);
         }
@@ -66,7 +62,11 @@ void Config::defaults()
     focus_distance = Property(1.0f, 0.5f, 5.0f);
     st_width = Property(1.0f, 0.1f, 2.0f);
     st_distance = Property(1.0f, 0.1f, 2.0f);
-    target_depth = Property(3.0f, 0.0f, 10.0f);
+    aperture_falloff = Property(1.0f, 0.01f, 1.99f);
+
+    target_x = Property(0.0f, -5.0f, 5.0f);
+    target_y = Property(0.0f, -5.0f, 5.0f);
+    target_z = Property(-3.0f, -10.0f, 0.0f);
 
     x = Property(0.0f, -3.0f, 3.0f);
     y = Property(0.0f, -3.0f, 3.0f);

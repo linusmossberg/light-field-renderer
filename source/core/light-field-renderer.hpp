@@ -20,7 +20,7 @@ public:
 
     virtual void draw_contents() override;
 
-    void performMovement();
+    void move();
 
     void open();
 
@@ -49,8 +49,8 @@ public:
     std::vector<bool> moves = std::vector<bool>(Move::NUM, false);
 
     bool target_movement = false;
-
     bool mouse_navigation = false;
+    bool normalize_aperture = true;
 
 private:
     std::shared_ptr<Config> cfg;

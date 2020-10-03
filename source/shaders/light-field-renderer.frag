@@ -6,6 +6,8 @@ inline constexpr char *light_field_renderer_frag = R"(
 
 uniform sampler2D image;
 
+uniform float aperture_falloff;
+
 out vec4 color;
 
 in vec2 uv;
@@ -27,7 +29,7 @@ void main()
         discard;
     }
 
-    float alpha = clamp(1.0 - length((uv - 0.5) * 2.0), 0, 1);
+    float aperture_filter = pow(clamp(1.0 - length((uv - 0.5) * 2.0), 0, 1), aperture_falloff);
 
-    color = vec4(srgbGammaExpand(texture(image, st).xyz) * alpha, alpha);
+    color = vec4(srgbGammaExpand(texture(image, st).xyz) * aperture_filter, aperture_filter);
 })";

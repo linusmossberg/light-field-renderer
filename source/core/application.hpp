@@ -19,25 +19,29 @@ private:
 
     struct PropertySlider
     {
-        PropertySlider(nanogui::Slider* slider, Config::Property* prop)
-            : slider(slider), prop(prop), last_value(*prop) { }
+        PropertySlider(nanogui::Widget* window, Config::Property* p, const std::string &name, 
+                       const std::string &unit, size_t precision);
 
         nanogui::Slider* slider;
-        Config::Property* prop;
+        Config::Property* const prop;
 
         float last_value;
 
-        void updateSliderValue()
-        {
-            if (std::abs(*prop - last_value) > 1e-5f)
-            {
-                float v = prop->getNormalized();
-                slider->set_value(v);
-                slider->callback()(v);
-                last_value = *prop;
-            }
-        }
+        void updateValue();
+    };
+
+    struct PropertyBoxRow
+    {
+        PropertyBoxRow(nanogui::Widget* window, const std::vector<Config::Property*> &properties, 
+                       const std::string &name, const std::string &unit, size_t precision, float step);
+
+        std::vector<Config::Property*> properties;
+        std::vector<nanogui::FloatBox<float>*> float_boxes;
+        std::vector<float> last_values;
+
+        void updateValues();
     };
 
     std::vector<PropertySlider> sliders;
+    std::vector<PropertyBoxRow> float_box_rows;
 };

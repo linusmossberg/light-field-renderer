@@ -9,25 +9,36 @@
 
 using namespace nanogui;
 
-Application::Application() : Screen(Vector2i(1280, 720), "Light Field", true, false, false, false, false, 3U, 3U)
+Application::Application() : 
+    Screen(Vector2i(1280, 720), "Light Field", true, false, false, false, false, 3U, 3U), 
+    cfg(std::make_shared<Config>())
 {
     inc_ref();
+
+    auto theme = new nanogui::Theme(this->nvg_context());
+    theme->m_window_fill_focused = Color(45, 255);
+    theme->m_window_fill_unfocused = Color(45, 255);
+    theme->m_drop_shadow = Color(0, 0);
 
     Window *window;
     Button* b;
 
-    window = new Window(this, "Light Field Render");
-    window->set_position(Vector2i(15, 15));
+    window = new Window(this, "Renderer");
+    window->set_position(Vector2i(600, 50));
     window->set_layout(new GroupLayout());
-
-    cfg = std::make_shared<Config>();
+    window->set_theme(theme);
 
     light_field_renderer = new LightFieldRenderer(window, glm::ivec2(512), cfg);
     light_field_renderer->set_visible(true);
 
     window = new Window(this, "Menu");
-    window->set_position(Vector2i(710, 15));
+    window->set_position(Vector2i(50, 50));
     window->set_layout(new GroupLayout(15, 6, 15, 0));
+    window->set_theme(theme);
+
+    b = new Button(window->button_panel(), "", FA_QUESTION);
+    b->set_font_size(15);
+    b->set_tooltip("Controls");
 
     new Label(window, "Add Light Field", "sans-bold", 20);
 
@@ -47,64 +58,47 @@ Application::Application() : Screen(Vector2i(1280, 720), "Light Field", true, fa
         }
     });
 
-    auto addSlider = [&](const std::string& name, const std::string& unit, Config::Property& prop, size_t precision)
-    {
-        Widget* panel = new Widget(window);
-        panel->set_layout(new GridLayout(Orientation::Horizontal, 3, Alignment::Middle));
+    new Label(window, "Optics", "sans-bold", 20);
+    sliders.emplace_back(window, &cfg->focal_length, "Focal Length", "mm", 1);
+    sliders.emplace_back(window, &cfg->sensor_width, "Sensor Width", "mm", 1);
+    sliders.emplace_back(window, &cfg->focus_distance, "Focus Distance", "m", 1);
 
-        Label* label = new Label(panel, name, "sans-bold");
-        label->set_fixed_width(86);
+    new Label(window, "Aperture", "sans-bold", 20);
+    sliders.emplace_back(window, &cfg->f_stop, "F-Stop", "", 1);
+    sliders.emplace_back(window, &cfg->aperture_falloff, "Filter Falloff", "", 2);
 
-        sliders.push_back(PropertySlider{ new Slider(panel), &prop });
-        auto &slider = sliders.back().slider;
+    Widget* panel = new Widget(window);
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill));
+    panel->set_fixed_width(200);
 
-        slider->set_value(prop.getNormalized());
-        slider->set_fixed_width(100);
+    Label* label = new Label(panel, "Normalize Aperture Filter", "sans-bold");
+    label->set_fixed_width(150);
 
-        TextBox* text_box = new TextBox(panel);
-        text_box->set_fixed_size(Vector2i(70, 20));
-        text_box->set_font_size(14);
-        text_box->set_alignment(TextBox::Alignment::Right);
-        text_box->set_units(unit);
-
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision(precision) << prop.getDisplay();
-        text_box->set_value(ss.str());
-            
-        slider->set_callback([text_box, &prop, precision](float value)
-            {
-                prop.setNormalized(value);
-
-                std::stringstream ss;
-                ss << std::fixed << std::setprecision(precision) << prop.getDisplay();
-                text_box->set_value(ss.str());
-            }
-        );
-    };
-
-    new Label(window, "Camera Settings", "sans-bold", 20);
-    addSlider("Focal Length", "mm", cfg->focal_length, 1);
-    addSlider("Sensor Width", "mm", cfg->sensor_width, 1);
-    addSlider("F-Stop", "", cfg->f_stop, 1);
-    addSlider("Focus Distance", "m", cfg->focus_distance, 1);
+    CheckBox *cb = new CheckBox(panel, "",
+        [this](bool state) { light_field_renderer->normalize_aperture = state; }
+    );
+    cb->set_checked(light_field_renderer->normalize_aperture);
+    cb->set_fixed_width(50);
 
     new Label(window, "Navigation", "sans-bold", 20);
-    Widget* panel = new Widget(window);
-    panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill, 0, 5));
+
+    panel = new Widget(window);
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 3, Alignment::Fill, 0, 5));
+
+    label = new Label(panel, "Mode", "sans-bold");
+    label->set_fixed_width(86);
 
     Button* free = new Button(panel, "Free", FA_STREET_VIEW);
     free->set_flags(Button::Flags::ToggleButton);
     free->set_pushed(!light_field_renderer->target_movement);
-    free->set_fixed_height(20);
+    free->set_fixed_size({ 125, 20 });
     free->set_tooltip("The camera is rotated freely with the mouse.");
 
     Button* target = new Button(panel, "Target", FA_BULLSEYE);
     target->set_flags(Button::Flags::ToggleButton);
     target->set_pushed(light_field_renderer->target_movement);
-    target->set_fixed_height(20);
+    target->set_fixed_size({ 125, 20 });
     target->set_tooltip("The camera looks at the center of the scene and the mouse controls the camera position.");
-
-    addSlider("Target Depth", "m", cfg->target_depth, 1);
 
     free->set_callback([this, target]
     {
@@ -117,18 +111,13 @@ Application::Application() : Screen(Vector2i(1280, 720), "Light Field", true, fa
         free->set_pushed(false);
     });
 
-    new Label(window, "Camera Transform", "sans-bold", 20);
+    float_box_rows.push_back(PropertyBoxRow(window, { &cfg->x, &cfg->y, &cfg->z }, "Position", "m", 3, 0.1f));
+    float_box_rows.push_back(PropertyBoxRow(window, { &cfg->yaw, &cfg->pitch }, "Rotation", "°", 1, 1.0f));
+    float_box_rows.push_back(PropertyBoxRow(window, { &cfg->target_x, &cfg->target_y, &cfg->target_z }, "Target", "m", 3, 1.0f));
 
-    addSlider("X", "m", cfg->x, 2);
-    addSlider("Y", "m", cfg->y, 2);
-    addSlider("Z", "m", cfg->z, 1);
-
-    addSlider("Yaw", "°", cfg->yaw, 1);
-    addSlider("Pitch", "°", cfg->pitch, 1);
-
-    new Label(window, "Light Slab Settings", "sans-bold", 20);
-    addSlider("st Width", "m", cfg->st_width, 1);
-    addSlider("st Distance", "m", cfg->st_distance, 1);
+    new Label(window, "Light Slab", "sans-bold", 20);
+    sliders.emplace_back(window, &cfg->st_width, "ST Width", "m", 1);
+    sliders.emplace_back(window, &cfg->st_distance, "ST Distance", "m", 1);
 
     perform_layout();
 }
@@ -152,7 +141,12 @@ void Application::draw(NVGcontext *ctx)
 {
     for (auto &s : sliders)
     {
-        s.updateSliderValue();
+        s.updateValue();
+    }
+
+    for (auto &t : float_box_rows)
+    {
+        t.updateValues();
     }
 
     Screen::draw(ctx);

@@ -9,6 +9,8 @@ uniform mat4 VP;
 uniform float focus_distance;
 uniform vec3 eye;
 uniform vec3 forward;
+uniform vec3 right;
+uniform vec3 up;
 uniform float aperture_diameter;
 
 // Properties of current data camera
@@ -40,9 +42,15 @@ focus distance |    /  |  \
 ****************************************************************************/
 vec2 cameraPlaneAperture()
 {
-    float d = focus_distance - sign(eye.z) * distance(eye, vec3(data_eye, 0.0));
-    float slope = aperture_diameter / focus_distance;
-    return data_eye + position * (slope * d * forward.z);
+    // float d = focus_distance - sign(eye.z) * distance(eye, vec3(data_eye, 0.0));
+    // float slope = aperture_diameter / focus_distance;
+    // return data_eye + position * (slope * d * forward.z);
+
+    vec3 focus_point = projectToFocalPlane(data_eye);
+    vec3 aperture = eye + (position.x * right + position.y * up) * aperture_diameter;
+    vec3 direction = normalize(focus_point - aperture);
+    float distance = -aperture.z / direction.z;
+    return aperture.xy + direction.xy * distance;
 }
 
 /******************************************************************

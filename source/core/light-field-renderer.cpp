@@ -15,14 +15,14 @@
 #include "../shaders/light-field-renderer.frag"
 #include "../shaders/data-camera-projections.vert"
 #include "../shaders/screen.vert"
-#include "../shaders/normalize-aperture-weights.frag"
+#include "../shaders/normalize-aperture-filters.frag"
 
 #include "config.hpp"
 #include "camera-array.hpp"
 #include "../gl-util/fbo.hpp"
 
 LightFieldRenderer::LightFieldRenderer(Widget* parent, const glm::ivec2 &fixed_size, const std::shared_ptr<Config> &cfg)
-    : Canvas(parent, 1, false), draw_shader(screen_vert, normalize_aperture_weights_frag), quad(), cfg(cfg)
+    : Canvas(parent, 1, false), draw_shader(screen_vert, normalize_aperture_filters_frag), quad(), cfg(cfg)
 {
     set_fixed_size({ fixed_size.x, fixed_size.y });
     fb_size = fixed_size;
@@ -39,7 +39,7 @@ void LightFieldRenderer::draw_contents()
 {
     if (!camera_array || !shader) return;
 
-    performMovement();
+    move();
 
     fbo->bind();
     quad.bind();
@@ -71,6 +71,10 @@ void LightFieldRenderer::draw_contents()
     glUniform1f(shader->getLocation("focus_distance"), cfg->focus_distance);
     glUniform1f(shader->getLocation("aperture_diameter"), cfg->focal_length / cfg->f_stop);
     glUniform3fv(shader->getLocation("forward"), 1, &forward[0]);
+    glUniform3fv(shader->getLocation("right"), 1, &right[0]);
+    glm::vec3 real_up = glm::normalize(glm::cross(-right, forward));
+    glUniform3fv(shader->getLocation("up"), 1, &real_up[0]);
+    glUniform1f(shader->getLocation("aperture_falloff"), cfg->aperture_falloff);
 
     for (int i = 0; i < camera_array->cameras.size(); i++)
     {
@@ -89,9 +93,14 @@ void LightFieldRenderer::draw_contents()
         quad.draw();
     }
 
+
+    float max_weight_sum = normalize_aperture ? 1.0f : fbo->getMaxAlpha();
+
     fbo->unBind();
     fbo->bindTexture();
     draw_shader.use();
+
+    glUniform1f(draw_shader.getLocation("max_weight_sum"), max_weight_sum);
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -99,15 +108,15 @@ void LightFieldRenderer::draw_contents()
     quad.draw();
 }
 
-void LightFieldRenderer::performMovement()
+void LightFieldRenderer::move()
 {
     eye = glm::vec3(cfg->x, cfg->y, cfg->z);
 
     if(!target_movement)
     {
-        forward = glm::vec3( std::sin(cfg->pitch),
-                            -std::sin(cfg->yaw) * std::cos(cfg->pitch),
-                            -std::cos(cfg->yaw) * std::cos(cfg->pitch));
+        forward = glm::vec3( std::sin(cfg->yaw),
+                            -std::sin(cfg->pitch) * std::cos(cfg->yaw),
+                            -std::cos(cfg->pitch) * std::cos(cfg->yaw));
     }
     
     right = glm::normalize(glm::cross(forward, up));
@@ -132,9 +141,9 @@ void LightFieldRenderer::performMovement()
 
         if (target_movement)
         {
-            forward = glm::normalize(glm::vec3(-eye.x, -eye.y, -eye.z - cfg->target_depth));
-            cfg->pitch = std::asin(forward.x);
-            cfg->yaw = std::atan2(-forward.y, -forward.z);
+            forward = glm::normalize(glm::vec3(cfg->target_x - eye.x, cfg->target_y - eye.y, cfg->target_z - eye.z));
+            cfg->yaw = std::asin(forward.x);
+            cfg->pitch = std::atan2(-forward.y, -forward.z);
         }
     }
     last_time = current_time;
@@ -177,13 +186,13 @@ bool LightFieldRenderer::mouse_drag_event(const nanogui::Vector2i& p, const nano
         {
             float scale = glm::length(camera_array->uv_size);
             cfg->x += scale * rel.x() / (float)fb_size.x;
-            cfg->y += scale * -rel.y() / (float)fb_size.y;
-            forward = glm::normalize(glm::vec3(-cfg->x, -cfg->y, -cfg->z - cfg->target_depth));
+            cfg->y -= scale * rel.y() / (float)fb_size.y;
+            forward = glm::normalize(glm::vec3(cfg->target_x - cfg->x, cfg->target_y -cfg->y, cfg->target_z - cfg->z));
         }
         else
         {
-            cfg->yaw += rel.y() / (float)fb_size.y;
-            cfg->pitch += rel.x() / (float)fb_size.x;
+            cfg->pitch += rel.y() / (float)fb_size.y;
+            cfg->yaw += rel.x() / (float)fb_size.x;
         }
     }
     return true;
@@ -197,7 +206,7 @@ bool LightFieldRenderer::scroll_event(const nanogui::Vector2i& p, const nanogui:
 
 bool LightFieldRenderer::mouse_button_event(const nanogui::Vector2i &p, int button, bool down, int modifiers)
 {
-    mouse_navigation = down;
+    mouse_navigation = down && camera_array;
 
     if (mouse_navigation)
         glfwSetInputMode(screen()->glfw_window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -209,21 +218,21 @@ bool LightFieldRenderer::mouse_button_event(const nanogui::Vector2i &p, int butt
 
 void LightFieldRenderer::keyboardEvent(int key, int scancode, int action, int modifiers)
 {
-    bool set;
+    bool pressed;
     switch (action)
     {
-    case GLFW_PRESS: set = true; break;
-    case GLFW_RELEASE: set = false; break;
+    case GLFW_PRESS: pressed = true; break;
+    case GLFW_RELEASE: pressed = false; break;
     default: return;
     }
 
     switch (key)
     {
-    case GLFW_KEY_W: moves[FORWARD] = set; break;
-    case GLFW_KEY_S: moves[BACK] = set; break;
-    case GLFW_KEY_A: moves[LEFT] = set; break;
-    case GLFW_KEY_D: moves[RIGHT] = set; break;
-    case GLFW_KEY_SPACE: moves[UP] = set; break;
-    case GLFW_KEY_LEFT_CONTROL: moves[DOWN] = set; break;
+    case GLFW_KEY_W: moves[FORWARD] = pressed; break;
+    case GLFW_KEY_S: moves[BACK] = pressed; break;
+    case GLFW_KEY_A: moves[LEFT] = pressed; break;
+    case GLFW_KEY_D: moves[RIGHT] = pressed; break;
+    case GLFW_KEY_SPACE: moves[UP] = pressed; break;
+    case GLFW_KEY_LEFT_CONTROL: moves[DOWN] = pressed; break;
     }
 }
