@@ -47,10 +47,13 @@ vec2 cameraPlaneAperture()
     // return data_eye + position * (slope * d * forward.z);
 
     vec3 focus_point = projectToFocalPlane(data_eye);
-    vec3 aperture = eye + (position.x * right + position.y * up) * aperture_diameter;
+    vec2 p = position * aperture_diameter;
+    vec3 aperture = eye + (p.x * right + p.y * up);
     vec3 direction = normalize(focus_point - aperture);
     float distance = -aperture.z / direction.z;
     return aperture.xy + direction.xy * distance;
+
+    return data_eye + position * aperture_diameter;
 }
 
 /******************************************************************

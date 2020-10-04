@@ -24,16 +24,20 @@ public:
 
     void open();
 
+    float getContrast();
+
     virtual bool mouse_drag_event(const nanogui::Vector2i& p, const nanogui::Vector2i& rel, int button, int modifiers) override;
     virtual bool scroll_event(const nanogui::Vector2i& p, const nanogui::Vector2f& rel) override;
     virtual bool mouse_button_event(const nanogui::Vector2i &p, int button, bool down, int modifiers) override;
     void keyboardEvent(int key, int scancode, int action, int modifiers);
 
     glm::vec3 forward, right, eye;
-    const glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    const glm::vec3 Y_AXIS = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::ivec2 fb_size;
 
     double last_time = std::numeric_limits<double>::max();
+    float last_contrast = 0.0f;
+    bool last_focus_direction = 0;
 
     enum Move
     {

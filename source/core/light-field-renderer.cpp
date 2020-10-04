@@ -20,6 +20,7 @@
 #include "config.hpp"
 #include "camera-array.hpp"
 #include "../gl-util/fbo.hpp"
+#include "util.hpp"
 
 LightFieldRenderer::LightFieldRenderer(Widget* parent, const glm::ivec2 &fixed_size, const std::shared_ptr<Config> &cfg)
     : Canvas(parent, 1, false), draw_shader(screen_vert, normalize_aperture_filters_frag), quad(), cfg(cfg)
@@ -55,16 +56,15 @@ void LightFieldRenderer::draw_contents()
 
     shader->use();
 
-    auto view = glm::lookAt(eye, eye + forward, up);
-
-    float aspect = fb_size.x / (float)fb_size.y;
-    float fov_y = 2.0f * std::atan2f(0.5f * (cfg->sensor_width / aspect), cfg->focal_length);
-    auto projection = glm::perspective(fov_y, aspect, 0.001f, 10.f);
+    auto view = glm::lookAt(eye, eye + forward, Y_AXIS);
+    auto projection = perspectiveProjection(cfg->focal_length, cfg->sensor_width, fb_size);
 
     // Flip projection if uv plane is behind camera
     if (eye.z < 0.0) projection = glm::scale(projection, glm::vec3(-1));
 
     auto VP = projection * view;
+
+    glm::vec3 up(view[0][1], view[1][1], view[2][1]);
 
     glUniformMatrix4fv(shader->getLocation("VP"), 1, GL_FALSE, &VP[0][0]);
     glUniform3fv(shader->getLocation("eye"), 1, &eye[0]);
@@ -72,8 +72,7 @@ void LightFieldRenderer::draw_contents()
     glUniform1f(shader->getLocation("aperture_diameter"), cfg->focal_length / cfg->f_stop);
     glUniform3fv(shader->getLocation("forward"), 1, &forward[0]);
     glUniform3fv(shader->getLocation("right"), 1, &right[0]);
-    glm::vec3 real_up = glm::normalize(glm::cross(-right, forward));
-    glUniform3fv(shader->getLocation("up"), 1, &real_up[0]);
+    glUniform3fv(shader->getLocation("up"), 1, &up[0]);
     glUniform1f(shader->getLocation("aperture_falloff"), cfg->aperture_falloff);
 
     for (int i = 0; i < camera_array->cameras.size(); i++)
@@ -119,7 +118,7 @@ void LightFieldRenderer::move()
                             -std::cos(cfg->pitch) * std::cos(cfg->yaw));
     }
     
-    right = glm::normalize(glm::cross(forward, up));
+    right = glm::normalize(glm::cross(forward, Y_AXIS));
 
     double current_time = glfwGetTime();
     if (current_time > last_time)
@@ -130,8 +129,8 @@ void LightFieldRenderer::move()
         if (moves[BACK])    eye -= forward * scale;
         if (moves[RIGHT])   eye += right * scale;
         if (moves[LEFT])    eye -= right * scale;
-        if (moves[UP])      eye += up * scale;
-        if (moves[DOWN])    eye -= up * scale;
+        if (moves[UP])      eye += Y_AXIS * scale;
+        if (moves[DOWN])    eye -= Y_AXIS * scale;
 
         cfg->x = eye.x;
         cfg->y = eye.y;
@@ -235,4 +234,53 @@ void LightFieldRenderer::keyboardEvent(int key, int scancode, int action, int mo
     case GLFW_KEY_SPACE: moves[UP] = pressed; break;
     case GLFW_KEY_LEFT_CONTROL: moves[DOWN] = pressed; break;
     }
+}
+
+float LightFieldRenderer::getContrast()
+{
+    auto gammaExpand = [](glm::dvec3 c)
+    {
+        for (uint8_t i = 0; i < 3; i++) 
+            c[i] = c[i] <= 0.04045 ? c[i] / 12.92 : std::pow((c[i] + 0.055) / 1.055, 2.4);
+
+        return c;
+    };
+
+    int vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+
+    glm::ivec2 res(64);
+    std::vector<glm::vec4> data(res.x * res.y);
+    glReadPixels(vp[0] + vp[2] / 2 - res.x / 2, vp[1] + vp[3] / 2 - res.y / 2, res.x, res.y, GL_RGBA, GL_FLOAT, data.data());
+
+    float max_l = -1.0f;
+    float min_l = std::numeric_limits<float>::max();
+
+    float total_l = 0.0f;
+
+    for (int y = 0; y < res.y; y++)
+    {
+        for (int x = 0; x < res.x; x++)
+        {
+            //auto v = glm::vec3(
+            //    data[y * res.y + x + 0],
+            //    data[y * res.y + x + 1],
+            //    data[y * res.y + x + 2]
+            //) / 255.0f;
+            auto v = glm::vec3(data[y * res.y + x]);
+
+            v = gammaExpand(v);
+
+            float l = 0.2126f * v.r + 0.7152 * v.g + 0.0722 * v.b;
+
+            if (max_l < l) max_l = l;
+            if (min_l > l) min_l = l;
+
+            total_l += l;
+        }
+    }
+
+    float contrast = (max_l - min_l) / (total_l / (res.x * res.y));
+
+    return std::isfinite(contrast) ? std::sqrt(contrast) : 0.0f;
 }

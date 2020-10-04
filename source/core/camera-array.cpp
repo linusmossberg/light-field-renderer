@@ -8,6 +8,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "util.hpp"
+
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -164,9 +166,7 @@ CameraArray::CameraArray(const std::filesystem::path& path)
                     glm::vec3(0, 1, 0)
                 );
 
-                float aspect = c.size.x / (float)c.size.y;
-                float fov_y = 2.0f * std::atan2f(0.5f * (c.sensor_width / aspect), c.focal_length);
-                auto projection = glm::perspective(fov_y, aspect, 0.001f, 100.f);
+                auto projection = perspectiveProjection(c.focal_length, c.sensor_width, c.size);
 
                 c.VP = projection * view;
             }
