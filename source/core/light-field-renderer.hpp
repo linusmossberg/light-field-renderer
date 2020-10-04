@@ -24,7 +24,7 @@ public:
 
     void open();
 
-    float getContrast();
+    void phaseDetectAutoFocus();
 
     virtual bool mouse_drag_event(const nanogui::Vector2i& p, const nanogui::Vector2i& rel, int button, int modifiers) override;
     virtual bool scroll_event(const nanogui::Vector2i& p, const nanogui::Vector2f& rel) override;
@@ -60,7 +60,11 @@ private:
     std::shared_ptr<Config> cfg;
     std::unique_ptr<CameraArray> camera_array;
     std::unique_ptr<MyShader> shader;
+    std::unique_ptr<MyShader> af_shader;
     MyShader draw_shader;
+    MyShader template_match_shader;
+    MyShader debug_shader;
     Quad quad;
     std::unique_ptr<FBO> fbo;
+    std::unique_ptr<FBO> af_fbo; // smaller FBO used for autofocus
 };
