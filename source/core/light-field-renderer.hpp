@@ -24,14 +24,13 @@ public:
 
     void open();
 
-    void phaseDetectAutoFocus();
-
     virtual bool mouse_drag_event(const nanogui::Vector2i& p, const nanogui::Vector2i& rel, int button, int modifiers) override;
     virtual bool scroll_event(const nanogui::Vector2i& p, const nanogui::Vector2f& rel) override;
     virtual bool mouse_button_event(const nanogui::Vector2i &p, int button, bool down, int modifiers) override;
     void keyboardEvent(int key, int scancode, int action, int modifiers);
 
-    glm::vec3 forward, right, eye;
+    glm::vec3 forward, right, up, eye;
+    glm::mat4 VP;
     const glm::vec3 Y_AXIS = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::ivec2 fb_size;
 
@@ -53,10 +52,19 @@ public:
     std::vector<bool> moves = std::vector<bool>(Move::NUM, false);
 
     bool target_movement = false;
-    bool mouse_navigation = false;
+    bool mouse_active = false;
     bool normalize_aperture = true;
+    bool continuous_autofocus = false;
+    bool autofocus_click = false;
+
+    // Used to prevent large relative movement the first click
+    bool click = false;
 
 private:
+    // The following functions are implemented in phase-detect-autofocus.cpp
+    void phaseDetectAutoFocus();
+    glm::vec3 pixelToFocalPlane(const glm::vec2 &px);
+
     std::shared_ptr<Config> cfg;
     std::unique_ptr<CameraArray> camera_array;
     std::unique_ptr<MyShader> shader;

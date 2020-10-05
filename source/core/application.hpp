@@ -33,7 +33,8 @@ private:
     struct PropertyBoxRow
     {
         PropertyBoxRow(nanogui::Widget* window, const std::vector<Config::Property*> &properties, 
-                       const std::string &name, const std::string &unit, size_t precision, float step);
+                       const std::string &name, const std::string &unit, size_t precision, float step,
+                       std::string tooltip = "");
 
         std::vector<Config::Property*> properties;
         std::vector<nanogui::FloatBox<float>*> float_boxes;

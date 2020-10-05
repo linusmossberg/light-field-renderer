@@ -3,14 +3,19 @@
 
 using namespace nanogui;
 
-Application::PropertyBoxRow::PropertyBoxRow(Widget* window, const std::vector<Config::Property*> &properties, const std::string &name, const std::string &unit, size_t precision, float step)
-    : properties(properties), last_values(properties.size()), float_boxes(properties.size())
+Application::PropertyBoxRow::PropertyBoxRow(
+    Widget* window, const std::vector<Config::Property*> &properties, 
+    const std::string &name, const std::string &unit, size_t precision, 
+    float step, std::string tooltip) 
+    : 
+    properties(properties), last_values(properties.size()), float_boxes(properties.size())
 {
     Widget* panel = new Widget(window);
     panel->set_layout(new GridLayout(Orientation::Horizontal, 1 + properties.size(), Alignment::Fill));
 
     Label* label = new Label(panel, name, "sans-bold");
     label->set_fixed_width(86);
+    label->set_tooltip(tooltip);
 
     int width = 250 / properties.size();
 
@@ -27,6 +32,7 @@ Application::PropertyBoxRow::PropertyBoxRow(Widget* window, const std::vector<Co
         float_boxes[i]->set_units(unit);
         float_boxes[i]->set_spinnable(true);
         float_boxes[i]->set_value_increment(step);
+        float_boxes[i]->set_tooltip(tooltip);
 
         float_boxes[i]->set_callback([float_box = float_boxes[i], prop = properties[i], precision](float value)
             {

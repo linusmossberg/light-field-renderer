@@ -63,5 +63,14 @@ public:
     Property pitch;
     Property yaw;
 
+    Property autofocus_x;
+    Property autofocus_y;
+
+    Property template_size_x;
+    Property template_size_y;
+
+    Property search_size_x;
+    Property search_size_y;
+
     std::string folder;
 };

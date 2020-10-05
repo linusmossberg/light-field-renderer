@@ -27,6 +27,8 @@ public:
 
     bool light_slab;
 
+    glm::ivec2 findBestCameras(const glm::vec2 &uv, float desired_spacing);
+
     glm::vec2 uv_size;
 
     std::vector<Camera> cameras;

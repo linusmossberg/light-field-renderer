@@ -10,7 +10,7 @@
 using namespace nanogui;
 
 Application::Application() : 
-    Screen(Vector2i(1280, 720), "Light Field", true, false, false, false, false, 3U, 3U), 
+    Screen(Vector2i(1280, 720), "Light Field Renderer", true, false, false, false, false, 3U, 3U), 
     cfg(std::make_shared<Config>())
 {
     inc_ref();
@@ -23,7 +23,7 @@ Application::Application() :
     Window *window;
     Button* b;
 
-    window = new Window(this, "Renderer");
+    window = new Window(this, "Render");
     window->set_position(Vector2i(600, 50));
     window->set_layout(new GroupLayout());
     window->set_theme(theme);
@@ -114,6 +114,37 @@ Application::Application() :
     float_box_rows.push_back(PropertyBoxRow(window, { &cfg->x, &cfg->y, &cfg->z }, "Position", "m", 3, 0.1f));
     float_box_rows.push_back(PropertyBoxRow(window, { &cfg->yaw, &cfg->pitch }, "Rotation", "°", 1, 1.0f));
     float_box_rows.push_back(PropertyBoxRow(window, { &cfg->target_x, &cfg->target_y, &cfg->target_z }, "Target", "m", 3, 1.0f));
+
+    new Label(window, "Autofocus", "sans-bold", 20);
+
+    float_box_rows.push_back(PropertyBoxRow(
+        window, { &cfg->autofocus_x, &cfg->autofocus_y }, "Screen Point", "", 2, 0.01f, 
+        "Can be set using shift+click in the render view")
+    );
+    float_box_rows.push_back(PropertyBoxRow(
+        window, { &cfg->search_size_x, &cfg->search_size_y }, "Search Size", "", 2, 0.01f,
+        "Size of template search region around screen point")
+    );
+    float_box_rows.push_back(PropertyBoxRow(
+        window, { &cfg->template_size_x, &cfg->template_size_y }, "Template Size", "", 2, 0.01f,
+        "Size of template to be searched for in the search region")
+    );
+
+    panel = new Widget(window);
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill, 0, 5));
+
+    label = new Label(panel, "Mode", "sans-bold");
+    label->set_fixed_width(86);
+
+    Button* continuous_af = new Button(panel, "Continuous", FA_STREET_VIEW);
+    continuous_af->set_flags(Button::Flags::ToggleButton);
+    continuous_af->set_pushed(light_field_renderer->continuous_autofocus);
+    continuous_af->set_fixed_size({ 250, 20 });
+
+    continuous_af->set_change_callback([this](bool state)
+    {
+        light_field_renderer->continuous_autofocus = state;
+    });
 
     new Label(window, "Light Slab", "sans-bold", 20);
     sliders.emplace_back(window, &cfg->st_width, "ST Width", "m", 1);
