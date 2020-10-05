@@ -16,10 +16,10 @@
 #include "../shaders/data-camera-projections.vert"
 #include "../shaders/screen.vert"
 #include "../shaders/normalize-aperture-filters.frag"
-#include "../shaders/autofocus.vert"
-#include "../shaders/autofocus.frag"
-#include "../shaders/template-match.frag"
-#include "../shaders/debug.frag"
+
+#include "../shaders/autofocus/phase.vert"
+#include "../shaders/autofocus/phase.frag"
+#include "../shaders/autofocus/template-match.frag"
 
 #include "config.hpp"
 #include "camera-array.hpp"
@@ -27,11 +27,9 @@
 #include "util.hpp"
 
 LightFieldRenderer::LightFieldRenderer(Widget* parent, const glm::ivec2 &fixed_size, const std::shared_ptr<Config> &cfg) : 
-    Canvas(parent, 1, false), 
-    draw_shader(screen_vert, normalize_aperture_filters_frag), 
-    quad(), cfg(cfg), 
-    template_match_shader(screen_vert, template_match_frag),
-    debug_shader(screen_vert, debug_frag)
+    Canvas(parent, 1, false), quad(), cfg(cfg),
+    draw_shader(screen_vert, normalize_aperture_filters_frag),
+    template_match_shader(screen_vert, template_match_frag)   
 {
     set_fixed_size({ fixed_size.x, fixed_size.y });
     fb_size = fixed_size;
@@ -41,8 +39,8 @@ LightFieldRenderer::LightFieldRenderer(Widget* parent, const glm::ivec2 &fixed_s
     }
     fb_size = glm::ivec2(glm::vec2(fb_size) * screen()->pixel_ratio());
 
-    fbo = std::make_unique<FBO>(fb_size);
-    af_fbo = std::make_unique<FBO>(fb_size);
+    fbo0 = std::make_unique<FBO>(fb_size);
+    fbo1 = std::make_unique<FBO>(fb_size);
 }
 
 void LightFieldRenderer::draw_contents()
@@ -57,7 +55,7 @@ void LightFieldRenderer::draw_contents()
         autofocus_click = false;
     }
 
-    fbo->bind();
+    fbo0->bind();
     quad.bind();
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -97,11 +95,10 @@ void LightFieldRenderer::draw_contents()
         quad.draw();
     }
 
-    float max_weight_sum = normalize_aperture ? 1.0f : fbo->getMaxAlpha();
+    float max_weight_sum = normalize_aperture ? 1.0f : fbo0->getMaxAlpha();
 
-    fbo->unBind();
-    fbo->bindTexture();
-    //af_fbo->bindTexture();
+    fbo0->unBind();
+    fbo0->bindTexture();
     draw_shader.use();
 
     glUniform1f(draw_shader.getLocation("max_weight_sum"), max_weight_sum);
@@ -175,9 +172,9 @@ void LightFieldRenderer::open()
                 (std::string(light_field_renderer_vert) + std::string(perspective_projection)).c_str(),
                 light_field_renderer_frag
             );
-            af_shader = std::make_unique<MyShader>(
-                (std::string(autofocus_vert) + std::string(perspective_projection)).c_str(),
-                autofocus_frag
+            phase_shader = std::make_unique<MyShader>(
+                (std::string(phase_vert) + std::string(perspective_projection)).c_str(),
+                phase_frag
             );
         }
         else
@@ -186,9 +183,9 @@ void LightFieldRenderer::open()
                 (std::string(light_field_renderer_vert) + std::string(light_slab_projection)).c_str(),
                 light_field_renderer_frag
             );
-            af_shader = std::make_unique<MyShader>(
-                (std::string(autofocus_vert) + std::string(light_slab_projection)).c_str(),
-                autofocus_frag
+            phase_shader = std::make_unique<MyShader>(
+                (std::string(phase_vert) + std::string(light_slab_projection)).c_str(),
+                phase_frag
             );
         }
     }
@@ -197,6 +194,7 @@ void LightFieldRenderer::open()
         std::cout << ex.what() << std::endl;
         camera_array.reset();
         shader.reset();
+        phase_shader.reset();
     }
 }
 
@@ -227,7 +225,6 @@ bool LightFieldRenderer::scroll_event(const nanogui::Vector2i& p, const nanogui:
     return true;
 }
 
-#include <iostream>
 bool LightFieldRenderer::mouse_button_event(const nanogui::Vector2i &p, int button, bool down, int modifiers)
 {
     mouse_active = down && camera_array;

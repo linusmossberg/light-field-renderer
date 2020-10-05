@@ -57,10 +57,9 @@ MyShader::~MyShader()
 int MyShader::getLocation(const char* name)
 {
     GLint loc = glGetUniformLocation(handle, name);
-    if (loc < 0)
-    {
-        std::cout << name << " uniform location not found.\n";
-    }
+
+    //if (loc < 0) std::cout << name << " uniform location not found.\n";
+
     return loc;
 }
 

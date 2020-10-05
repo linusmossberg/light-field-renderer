@@ -1,6 +1,6 @@
 #pragma once
 
-inline constexpr char *autofocus_vert = R"(
+inline constexpr char *phase_vert = R"(
 #version 330 core
 #line 5
 
@@ -13,6 +13,8 @@ uniform mat4 VP;
 
 // Properties of current data camera
 uniform vec2 data_eye;
+
+uniform vec2 center_pos;
 
 layout (location = 0) in vec2 position;
 layout (location = 1) in vec2 texcoord;
@@ -34,7 +36,7 @@ vec2 projectToDataCamera(vec3 point);
 
 void main() 
 {
-    vec2 p = data_eye + position * size;
+    vec2 p = center_pos + position * size;
 
     st = projectToDataCamera(projectToFocalPlane(p));
     uv = texcoord;

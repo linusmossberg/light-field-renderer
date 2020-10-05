@@ -121,14 +121,6 @@ Application::Application() :
         window, { &cfg->autofocus_x, &cfg->autofocus_y }, "Screen Point", "", 2, 0.01f, 
         "Can be set using shift+click in the render view")
     );
-    float_box_rows.push_back(PropertyBoxRow(
-        window, { &cfg->search_size_x, &cfg->search_size_y }, "Search Size", "", 2, 0.01f,
-        "Size of template search region around screen point")
-    );
-    float_box_rows.push_back(PropertyBoxRow(
-        window, { &cfg->template_size_x, &cfg->template_size_y }, "Template Size", "", 2, 0.01f,
-        "Size of template to be searched for in the search region")
-    );
 
     panel = new Widget(window);
     panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill, 0, 5));

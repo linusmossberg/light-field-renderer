@@ -1,6 +1,6 @@
 #pragma once
 
-inline constexpr char *autofocus_frag = R"(
+inline constexpr char *phase_frag = R"(
 #version 330 core
 #line 5
 
@@ -32,8 +32,6 @@ void main()
     vec3 linear = srgbGammaExpand(texture(image, st).xyz);
 
     float luminance = 0.2126f * linear.r + 0.7152 * linear.g + 0.0722 * linear.b;
-    // luminance *= 0.5;
-    // color = vec4(vec3(luminance), 1.0);
 
     color = vec4(0.0, 0.0, 0.0, 1.0);
     color[channel] = luminance;

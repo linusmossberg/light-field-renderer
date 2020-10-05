@@ -199,37 +199,21 @@ void CameraArray::bind(size_t index, int eye_loc, int VP_loc)
     }
 }
 
-glm::ivec2 CameraArray::findBestCameras(const glm::vec2 &uv, float desired_spacing)
+int CameraArray::findClosestCamera(const glm::vec2 &uv, int exclude_idx)
 {
-    glm::ivec2 cam_idxs(0);
-
+    int idx = 0;
     float min_dist = std::numeric_limits<float>::max();
 
     for (int i = 0; i < cameras.size(); i++)
     {
+        if (i == exclude_idx) continue;
         float dist = glm::distance(cameras[i].uv, uv);
         if (dist < min_dist)
         {
-            cam_idxs[0] = i;
+            idx = i;
             min_dist = dist;
         }
     }
 
-    float min_diff = std::numeric_limits<float>::max();
-    float goal_dist = desired_spacing * std::min(uv_size.x, uv_size.y);
-
-    for (int i = 0; i < cameras.size(); i++)
-    {
-        if (i == cam_idxs[0]) continue;
-
-        float dist = glm::distance(cameras[i].uv, cameras[cam_idxs[0]].uv);
-        float diff = std::abs(goal_dist - dist);
-        if (diff < min_diff)
-        {
-            cam_idxs[1] = i;
-            min_diff = diff;
-        }
-    }
-
-    return cam_idxs;
+    return idx;
 }
