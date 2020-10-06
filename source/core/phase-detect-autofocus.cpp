@@ -84,6 +84,11 @@ void LightFieldRenderer::phaseDetectAutofocus()
     
     fbo1->unBind();
 
+    if (visualize_disparity && !(continuous_autofocus || autofocus_click))
+    {
+        return;
+    }
+
     fbo0->bind();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -94,7 +99,7 @@ void LightFieldRenderer::phaseDetectAutofocus()
 
     template_match_shader.use();
 
-    glUniform2iv(template_match_shader.getLocation("size"), 1, &fbo1->size[0]);
+    glUniform2iv(template_match_shader.getLocation("size"), 1, &fb_size[0]);
     glUniform2iv(template_match_shader.getLocation("template_min"), 1, &template_min[0]);
     glUniform2iv(template_match_shader.getLocation("template_max"), 1, &template_max[0]);
 

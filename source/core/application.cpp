@@ -146,6 +146,17 @@ Application::Application() :
         light_field_renderer->continuous_autofocus = state;
     });
 
+    panel = new Widget(window);
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill));
+    panel->set_fixed_width(165);
+    label = new Label(panel, "Visualize Disparity", "sans-bold");
+    label->set_fixed_width(115);
+    cb = new CheckBox(panel, "",
+        [this](bool state) { light_field_renderer->visualize_disparity = state; }
+    );
+    cb->set_checked(light_field_renderer->visualize_disparity);
+    cb->set_fixed_width(50);
+
     new Label(window, "Light Slab", "sans-bold", 20);
     sliders.emplace_back(window, &cfg->st_width, "ST Width", "m", 1);
     sliders.emplace_back(window, &cfg->st_distance, "ST Distance", "m", 1);
