@@ -15,10 +15,10 @@
 
 glm::vec3 closestPointBetweenRays(const glm::vec3 &p0, const glm::vec3 &d0, const glm::vec3 &p1, const glm::vec3 &d1);
 
-void LightFieldRenderer::phaseDetectAutoFocus()
+void LightFieldRenderer::phaseDetectAutofocus()
 {
-    const glm::ivec2 template_size(64);
-    const glm::ivec2 search_size(128);
+    const glm::ivec2 template_size((int)std::round(cfg->template_size));
+    const glm::ivec2 search_size((int)std::round(cfg->template_size * cfg->search_scale));
 
     glm::ivec2 af_pos(glm::vec2(cfg->autofocus_x, cfg->autofocus_y) * glm::vec2(fb_size));
 
@@ -55,30 +55,30 @@ void LightFieldRenderer::phaseDetectAutoFocus()
     // Discard fragments outside of search region
     glScissor(search_min.x, search_min.y, search_size.x, search_size.y);
 
-    phase_shader->use();
+    disparity_shader->use();
 
-    glUniform3fv(phase_shader->getLocation("eye"), 1, &eye[0]);
-    glUniform1f(phase_shader->getLocation("focus_distance"), cfg->focus_distance);
-    glUniform1f(phase_shader->getLocation("size"), 3.0f * std::max(camera_array->uv_size.x, camera_array->uv_size.y));
-    glUniform3fv(phase_shader->getLocation("forward"), 1, &forward[0]);
-    glUniform2fv(phase_shader->getLocation("center_pos"), 1, &center_pos[0]);
-    glUniformMatrix4fv(phase_shader->getLocation("VP"), 1, GL_FALSE, &VP[0][0]);
+    glUniform3fv(disparity_shader->getLocation("eye"), 1, &eye[0]);
+    glUniform1f(disparity_shader->getLocation("focus_distance"), cfg->focus_distance);
+    glUniform1f(disparity_shader->getLocation("size"), 3.0f * std::max(camera_array->uv_size.x, camera_array->uv_size.y));
+    glUniform3fv(disparity_shader->getLocation("forward"), 1, &forward[0]);
+    glUniform2fv(disparity_shader->getLocation("center_pos"), 1, &center_pos[0]);
+    glUniformMatrix4fv(disparity_shader->getLocation("VP"), 1, GL_FALSE, &VP[0][0]);
 
     for (int i = 0; i < 2; i++)
     {
         if (!camera_array->light_slab)
         {
-            camera_array->bind(cameras[i], phase_shader->getLocation("data_eye"), phase_shader->getLocation("data_VP"));
+            camera_array->bind(cameras[i], disparity_shader->getLocation("data_eye"), disparity_shader->getLocation("data_VP"));
         }
         else
         {
-            camera_array->bind(cameras[i], phase_shader->getLocation("data_eye"));
+            camera_array->bind(cameras[i], disparity_shader->getLocation("data_eye"));
             glm::vec2 st_size(camera_array->cameras[i].size);
             st_size = (st_size / st_size.x) * (float)cfg->st_width;
-            glUniform2fv(phase_shader->getLocation("st_size"), 1, &st_size[0]);
-            glUniform1f(phase_shader->getLocation("st_distance"), cfg->st_distance);
+            glUniform2fv(disparity_shader->getLocation("st_size"), 1, &st_size[0]);
+            glUniform1f(disparity_shader->getLocation("st_distance"), cfg->st_distance);
         }
-        glUniform1i(phase_shader->getLocation("channel"), i);
+        glUniform1i(disparity_shader->getLocation("channel"), i);
         quad.draw();
     }
     
@@ -124,11 +124,11 @@ void LightFieldRenderer::phaseDetectAutoFocus()
 
     best += glm::vec2(template_size) * 0.5f;
 
-    glm::vec2 pixel_phase = (glm::vec2(search_size) * 0.5f) - best;
+    glm::vec2 pixel_phase_difference = (glm::vec2(search_size) * 0.5f) - best;
 
     // Pixels projected to focal plane
     glm::vec3 f0 = pixelToFocalPlane(glm::vec2(af_pos));
-    glm::vec3 f1 = pixelToFocalPlane(glm::vec2(af_pos) + pixel_phase);
+    glm::vec3 f1 = pixelToFocalPlane(glm::vec2(af_pos) + pixel_phase_difference);
 
     // Camera positions
     glm::vec3 c0 = glm::vec3(camera_array->cameras[cameras.x].uv, 0.0f);
@@ -138,9 +138,11 @@ void LightFieldRenderer::phaseDetectAutoFocus()
     glm::vec3 d0 = glm::normalize(f0 - c0);
     glm::vec3 d1 = glm::normalize(f1 - c1);
 
-    glm::vec3 r = closestPointBetweenRays(c0, d0, c1, d1);
+    // Point on new focal plane
+    glm::vec3 nf = closestPointBetweenRays(c0, d0, c1, d1);
 
-    cfg->focus_distance = glm::distance(eye, r);
+    // dot(nf-eye, forward) = |nf-eye|*cos(theta)
+    cfg->focus_distance = dot(nf - eye, forward);
 }
 
 glm::vec3 LightFieldRenderer::pixelDirection(const glm::vec2 &px)

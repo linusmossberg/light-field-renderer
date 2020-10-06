@@ -121,6 +121,14 @@ Application::Application() :
         window, { &cfg->autofocus_x, &cfg->autofocus_y }, "Screen Point", "", 2, 0.01f, 
         "Can be set using shift+click in the render view")
     );
+    float_box_rows.push_back(PropertyBoxRow(
+        window, { &cfg->template_size }, "Template Size", "px", 0, 2.0f,
+        "Can be set using shift+click in the render view")
+    );
+    float_box_rows.push_back(PropertyBoxRow(
+        window, { &cfg->search_scale }, "Search Scale", "", 1, 0.1f,
+        "Can be set using shift+click in the render view")
+    );
 
     panel = new Widget(window);
     panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill, 0, 5));

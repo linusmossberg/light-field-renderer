@@ -9,7 +9,7 @@ inline constexpr char *template_match_frag = R"glsl(
 #version 330 core
 #line 10
 
-uniform sampler2D phase_image;
+uniform sampler2D disparity_image;
 
 uniform ivec2 size;
 uniform ivec2 template_min;
@@ -30,8 +30,8 @@ void main()
         {
             vec2 T_xy = vec2(x, y);
 
-            float S = texture(phase_image, (I_xy + T_xy - template_min) / size).r;
-            float T = texture(phase_image, T_xy / size).g;
+            float S = texture(disparity_image, (I_xy + T_xy - template_min) / size).r;
+            float T = texture(disparity_image, T_xy / size).g;
 
             sum += pow(S-T, 2);
         }

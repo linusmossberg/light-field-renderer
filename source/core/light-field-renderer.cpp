@@ -17,8 +17,8 @@
 #include "../shaders/screen.vert"
 #include "../shaders/normalize-aperture-filters.frag"
 
-#include "../shaders/autofocus/phase.vert"
-#include "../shaders/autofocus/phase.frag"
+#include "../shaders/autofocus/disparity.vert"
+#include "../shaders/autofocus/disparity.frag"
 #include "../shaders/autofocus/template-match.frag"
 
 #include "config.hpp"
@@ -51,7 +51,7 @@ void LightFieldRenderer::draw_contents()
 
     if (continuous_autofocus || autofocus_click)
     {
-        phaseDetectAutoFocus();
+        phaseDetectAutofocus();
         autofocus_click = false;
     }
 
@@ -172,9 +172,9 @@ void LightFieldRenderer::open()
                 (std::string(light_field_renderer_vert) + std::string(perspective_projection)).c_str(),
                 light_field_renderer_frag
             );
-            phase_shader = std::make_unique<MyShader>(
-                (std::string(phase_vert) + std::string(perspective_projection)).c_str(),
-                phase_frag
+            disparity_shader = std::make_unique<MyShader>(
+                (std::string(disparity_vert) + std::string(perspective_projection)).c_str(),
+                disparity_frag
             );
         }
         else
@@ -183,9 +183,9 @@ void LightFieldRenderer::open()
                 (std::string(light_field_renderer_vert) + std::string(light_slab_projection)).c_str(),
                 light_field_renderer_frag
             );
-            phase_shader = std::make_unique<MyShader>(
-                (std::string(phase_vert) + std::string(light_slab_projection)).c_str(),
-                phase_frag
+            disparity_shader = std::make_unique<MyShader>(
+                (std::string(disparity_vert) + std::string(light_slab_projection)).c_str(),
+                disparity_frag
             );
         }
     }
@@ -194,7 +194,7 @@ void LightFieldRenderer::open()
         std::cout << ex.what() << std::endl;
         camera_array.reset();
         shader.reset();
-        phase_shader.reset();
+        disparity_shader.reset();
     }
 }
 

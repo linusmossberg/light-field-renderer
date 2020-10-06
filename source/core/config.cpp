@@ -75,11 +75,8 @@ void Config::defaults()
     autofocus_x = Property(0.5f, 0.0f, 1.0f);
     autofocus_y = Property(0.5f, 0.0f, 1.0f);
 
-    search_size_x = Property(0.2f, 0.0f, 1.0f);
-    search_size_y = Property(0.2f, 0.0f, 1.0f);
-
-    template_size_x = Property(0.1f, 0.0f, 0.5f);
-    template_size_y = Property(0.1f, 0.0f, 0.5f);
+    template_size = Property(64.0f, 16.0f, 128.0f);
+    search_scale = Property(2.0f, 1.5f, 4.0f);
 
     pitch = Property(0.0f, -89.9f, 89.9f, PI / 180.0f);
     yaw = Property(0.0f, -89.9f, 89.9f, PI / 180.0f);

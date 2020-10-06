@@ -62,7 +62,7 @@ public:
 
 private:
     // The following functions are implemented in phase-detect-autofocus.cpp
-    void phaseDetectAutoFocus();
+    void phaseDetectAutofocus();
     glm::vec3 pixelDirection(const glm::vec2 &px);
     glm::vec3 pixelToFocalPlane(const glm::vec2 &px);
     glm::vec2 pixelToCameraPlane(const glm::vec2 &px);
@@ -71,7 +71,7 @@ private:
     std::shared_ptr<Config> cfg;
     std::unique_ptr<CameraArray> camera_array;
     std::unique_ptr<MyShader> shader;
-    std::unique_ptr<MyShader> phase_shader;
+    std::unique_ptr<MyShader> disparity_shader;
     MyShader draw_shader;
     MyShader template_match_shader;
     Quad quad;
