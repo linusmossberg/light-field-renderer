@@ -20,7 +20,7 @@
 #include "../shaders/autofocus/disparity.vert"
 #include "../shaders/autofocus/disparity.frag"
 #include "../shaders/autofocus/template-match.frag"
-#include "../shaders/autofocus/draw-disparity.frag"
+#include "../shaders/autofocus/visualize-autofocus.frag"
 
 #include "config.hpp"
 #include "camera-array.hpp"
@@ -30,8 +30,8 @@
 LightFieldRenderer::LightFieldRenderer(Widget* parent, const glm::ivec2 &fixed_size, const std::shared_ptr<Config> &cfg) : 
     Canvas(parent, 1, false), quad(), cfg(cfg),
     draw_shader(screen_vert, normalize_aperture_filters_frag),
-    draw_disparity_shader(screen_vert, draw_disparity_frag),
-    template_match_shader(screen_vert, template_match_frag)   
+    visualize_autofocus_shader(screen_vert, visualize_autofocus_frag),
+    template_match_shader(screen_vert, template_match_frag)
 {
     set_fixed_size({ fixed_size.x, fixed_size.y });
     fb_size = fixed_size;
@@ -51,18 +51,17 @@ void LightFieldRenderer::draw_contents()
 
     move();
 
-    if (continuous_autofocus || autofocus_click || visualize_disparity)
+    if (continuous_autofocus || autofocus_click || visualize_autofocus)
     {
         phaseDetectAutofocus();
         autofocus_click = false;
     }
 
-    if (visualize_disparity)
+    if (visualize_autofocus)
     {
         fbo1->bindTexture();
-        draw_disparity_shader.use();
+        visualize_autofocus_shader.use();
 
-        glUniform1f(draw_shader.getLocation("max_weight_sum"), 1.0f);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 

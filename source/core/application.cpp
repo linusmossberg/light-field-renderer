@@ -117,45 +117,50 @@ Application::Application() :
 
     new Label(window, "Autofocus", "sans-bold", 20);
 
-    float_box_rows.push_back(PropertyBoxRow(
-        window, { &cfg->autofocus_x, &cfg->autofocus_y }, "Screen Point", "", 2, 0.01f, 
-        "Can be set using shift+click in the render view")
-    );
-    float_box_rows.push_back(PropertyBoxRow(
-        window, { &cfg->template_size }, "Template Size", "px", 0, 2.0f,
-        "Can be set using shift+click in the render view")
-    );
-    float_box_rows.push_back(PropertyBoxRow(
-        window, { &cfg->search_scale }, "Search Scale", "", 1, 0.1f,
-        "Can be set using shift+click in the render view")
-    );
+        panel = new Widget(window);
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 4, Alignment::Fill, 0, 5));
 
-    panel = new Widget(window);
-    panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill, 0, 5));
-
-    label = new Label(panel, "Mode", "sans-bold");
+    label = new Label(panel, "Option", "sans-bold");
     label->set_fixed_width(86);
 
-    Button* continuous_af = new Button(panel, "Continuous", FA_STREET_VIEW);
-    continuous_af->set_flags(Button::Flags::ToggleButton);
-    continuous_af->set_pushed(light_field_renderer->continuous_autofocus);
-    continuous_af->set_fixed_size({ 250, 20 });
+    Button* focus_af = new Button(panel, "Focus");
+    focus_af->set_fixed_size({ 83, 20 });
+    focus_af->set_font_size(14);
+    focus_af->set_callback([this]()
+    {
+        light_field_renderer->autofocus_click = true;
+    });
 
+    Button* continuous_af = new Button(panel, "Continuous");
+    continuous_af->set_flags(Button::Flags::ToggleButton);
+    continuous_af->set_font_size(14);
+    continuous_af->set_pushed(light_field_renderer->continuous_autofocus);
+    continuous_af->set_fixed_size({ 83, 20 });
     continuous_af->set_change_callback([this](bool state)
     {
         light_field_renderer->continuous_autofocus = state;
     });
 
-    panel = new Widget(window);
-    panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill));
-    panel->set_fixed_width(165);
-    label = new Label(panel, "Visualize Disparity", "sans-bold");
-    label->set_fixed_width(115);
-    cb = new CheckBox(panel, "",
-        [this](bool state) { light_field_renderer->visualize_disparity = state; }
+    Button* visualize_af = new Button(panel, "Visualize");
+    visualize_af->set_flags(Button::Flags::ToggleButton);
+    visualize_af->set_pushed(light_field_renderer->visualize_autofocus);
+    visualize_af->set_font_size(14);
+    visualize_af->set_fixed_size({ 83, 20 });
+    visualize_af->set_change_callback([this](bool state)
+    {
+        light_field_renderer->visualize_autofocus = state;
+    });
+
+    float_box_rows.push_back(PropertyBoxRow(
+        window, { &cfg->autofocus_x, &cfg->autofocus_y }, "Screen Point", "", 2, 0.01f, 
+        "Can be set using shift+click in the render view")
     );
-    cb->set_checked(light_field_renderer->visualize_disparity);
-    cb->set_fixed_width(50);
+    float_box_rows.push_back(PropertyBoxRow(
+        window, { &cfg->template_size }, "Template Size", "px", 0, 2.0f)
+    );
+    float_box_rows.push_back(PropertyBoxRow(
+        window, { &cfg->search_scale }, "Search Scale", "", 1, 0.1f)
+    );
 
     new Label(window, "Light Slab", "sans-bold", 20);
     sliders.emplace_back(window, &cfg->st_width, "ST Width", "m", 1);

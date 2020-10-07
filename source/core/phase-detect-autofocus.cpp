@@ -53,7 +53,8 @@ void LightFieldRenderer::phaseDetectAutofocus()
     glDisable(GL_CULL_FACE);
 
     // Discard fragments outside of search region
-    glScissor(search_min.x, search_min.y, search_size.x, search_size.y);
+    if(!visualize_autofocus)
+        glScissor(search_min.x, search_min.y, search_size.x, search_size.y);
 
     disparity_shader->use();
 
@@ -84,9 +85,17 @@ void LightFieldRenderer::phaseDetectAutofocus()
     
     fbo1->unBind();
 
-    if (visualize_disparity && !(continuous_autofocus || autofocus_click))
+    if (visualize_autofocus)
     {
-        return;
+        visualize_autofocus_shader.use();
+
+        glUniform2iv(visualize_autofocus_shader.getLocation("size"), 1, &fb_size[0]);
+        glUniform2iv(visualize_autofocus_shader.getLocation("template_min"), 1, &template_min[0]);
+        glUniform2iv(visualize_autofocus_shader.getLocation("template_max"), 1, &template_max[0]);
+        glUniform2iv(visualize_autofocus_shader.getLocation("search_min"), 1, &search_min[0]);
+        glUniform2iv(visualize_autofocus_shader.getLocation("search_max"), 1, &search_max[0]);
+
+        if(!(continuous_autofocus || autofocus_click)) return;
     }
 
     fbo0->bind();

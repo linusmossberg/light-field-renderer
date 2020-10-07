@@ -57,7 +57,7 @@ public:
     bool continuous_autofocus = false;
     bool autofocus_click = false;
 
-    bool visualize_disparity = false;
+    bool visualize_autofocus = false;
 
     // Used to prevent large relative movement the first click
     bool click = false;
@@ -75,7 +75,7 @@ private:
     std::unique_ptr<MyShader> shader;
     std::unique_ptr<MyShader> disparity_shader;
     MyShader draw_shader;
-    MyShader draw_disparity_shader;
+    MyShader visualize_autofocus_shader;
     MyShader template_match_shader;
     Quad quad;
     std::unique_ptr<FBO> fbo0;
