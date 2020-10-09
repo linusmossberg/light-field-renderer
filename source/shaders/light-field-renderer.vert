@@ -28,32 +28,18 @@ vec3 projectToFocalPlane(vec2 point)
     return eye + direction * (focus_distance / dot(direction, forward));
 }
 
-/****************************************************************************
-                  focal plane
-                 ------o------
-               ^      /|\
-               |     / | \
-focus distance |    /  |  \
-               |   x---d---x    d = data eye, x = new aperture vertices
-               v  /    |    \
-                 p-----e-----p  e = desired eye, p = old aperture vertices
-                 <-----D----->  D = aperture diameter
-
-****************************************************************************/
 vec2 cameraPlaneAperture()
 {
-    // float d = focus_distance - sign(eye.z) * distance(eye, vec3(data_eye, 0.0));
-    // float slope = aperture_diameter / focus_distance;
-    // return data_eye + position * (slope * d * forward.z);
+    // Subtract because the vertex will be located on the opposite side of the data eye
+    vec3 aperture = eye - (position.x * right + position.y * up) * aperture_diameter;
 
-    vec3 focus_point = projectToFocalPlane(data_eye);
-    vec2 p = position * aperture_diameter;
-    vec3 aperture = eye + (p.x * right + p.y * up);
-    vec3 direction = normalize(focus_point - aperture);
-    float distance = -aperture.z / direction.z;
-    return aperture.xy + direction.xy * distance;
+    // Project aperture point to focal plane through the ray that passes through the data camera
+    vec3 a2d = normalize(vec3(data_eye, 0.0) - aperture);
+    vec3 focal_point = aperture + a2d * (focus_distance / dot(a2d, forward));
 
-    return data_eye + position * aperture_diameter;
+    // Project eye point to to camera plane through the ray that passes through this focal point
+    vec3 e2f = normalize(focal_point - eye);
+    return eye.xy + e2f.xy * (-eye.z / e2f.z);
 }
 
 /******************************************************************
