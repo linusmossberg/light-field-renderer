@@ -165,7 +165,8 @@ void LightFieldRenderer::move()
     last_time = current_time;
 
     auto view = glm::lookAt(eye, eye + forward, Y_AXIS);
-    auto projection = perspectiveProjection(cfg->focal_length, cfg->sensor_width, fb_size);
+    float image_distance = focus_breathing ? imageDistance(cfg->focal_length, cfg->focus_distance) : cfg->focal_length;
+    auto projection = perspectiveProjection(image_distance, cfg->sensor_width, fb_size);
 
     // Flip projection if uv plane is behind camera
     if (eye.z < 0.0) projection = glm::scale(projection, glm::vec3(-1));

@@ -63,22 +63,34 @@ Application::Application() :
     sliders.emplace_back(window, &cfg->sensor_width, "Sensor Width", "mm", 1);
     sliders.emplace_back(window, &cfg->focus_distance, "Focus Distance", "m", 1);
 
-    new Label(window, "Aperture", "sans-bold", 20);
     sliders.emplace_back(window, &cfg->f_stop, "F-Stop", "", 1);
     sliders.emplace_back(window, &cfg->aperture_falloff, "Filter Falloff", "", 2);
 
     Widget* panel = new Widget(window);
-    panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill));
-    panel->set_fixed_width(200);
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 3, Alignment::Fill, 0, 5));
 
-    Label* label = new Label(panel, "Normalize Aperture Filter", "sans-bold");
-    label->set_fixed_width(150);
+    Label* label = new Label(panel, "Option", "sans-bold");
+    label->set_fixed_width(86);
 
-    CheckBox *cb = new CheckBox(panel, "",
-        [this](bool state) { light_field_renderer->normalize_aperture = state; }
-    );
-    cb->set_checked(light_field_renderer->normalize_aperture);
-    cb->set_fixed_width(50);
+    Button* normalize = new Button(panel, "Normalize Aperture");
+    normalize->set_fixed_size({ 125, 20 });
+    normalize->set_font_size(14);
+    normalize->set_flags(Button::Flags::ToggleButton);
+    normalize->set_pushed(light_field_renderer->normalize_aperture);
+    normalize->set_change_callback([this](bool state)
+    {
+        light_field_renderer->normalize_aperture = state;
+    });
+
+    Button* breathing = new Button(panel, "Focus Breathing");
+    breathing->set_fixed_size({ 125, 20 });
+    breathing->set_font_size(14);
+    breathing->set_flags(Button::Flags::ToggleButton);
+    breathing->set_pushed(light_field_renderer->focus_breathing);
+    breathing->set_change_callback([this](bool state)
+    {
+        light_field_renderer->focus_breathing = state;
+    });
 
     new Label(window, "Navigation", "sans-bold", 20);
 
@@ -117,7 +129,7 @@ Application::Application() :
 
     new Label(window, "Autofocus", "sans-bold", 20);
 
-        panel = new Widget(window);
+    panel = new Widget(window);
     panel->set_layout(new GridLayout(Orientation::Horizontal, 4, Alignment::Fill, 0, 5));
 
     label = new Label(panel, "Option", "sans-bold");

@@ -164,7 +164,8 @@ glm::vec3 LightFieldRenderer::pixelDirection(const glm::vec2 &px)
     float x = (float)cfg->sensor_width * ((px.x - (fb_size.x * 0.5f)) / fb_size.x);
     float y = (float)cfg->sensor_width * ((px.y - (fb_size.y * 0.5f)) / fb_size.x);
 
-    return glm::normalize(right * x + up * y + forward * (float)cfg->focal_length);
+    float image_distance = focus_breathing ? imageDistance(cfg->focal_length, cfg->focus_distance) : cfg->focal_length;
+    return glm::normalize(right * x + up * y + forward * image_distance);
 }
 
 glm::vec3 LightFieldRenderer::pixelToFocalPlane(const glm::vec2 &px)

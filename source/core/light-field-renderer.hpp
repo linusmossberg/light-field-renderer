@@ -56,6 +56,7 @@ public:
     bool normalize_aperture = true;
     bool continuous_autofocus = false;
     bool autofocus_click = false;
+    bool focus_breathing = false;
 
     bool visualize_autofocus = false;
 
