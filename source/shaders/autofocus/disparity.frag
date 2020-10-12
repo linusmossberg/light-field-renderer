@@ -10,7 +10,6 @@ uniform int channel;
 
 out vec4 color;
 
-in vec2 uv;
 in vec2 st;
 
 vec3 srgbGammaExpand(vec3 c)

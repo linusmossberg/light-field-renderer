@@ -31,8 +31,6 @@ void LightFieldRenderer::phaseDetectAutofocus()
     cameras.x = camera_array->findClosestCamera(pixelToCameraPlane(glm::vec2(fb_size) * 0.4f));
     cameras.y = camera_array->findClosestCamera(pixelToCameraPlane(glm::vec2(fb_size) * 0.6f), cameras.x);
 
-    glm::vec2 center_pos = (camera_array->cameras[cameras.x].uv + camera_array->cameras[cameras.y].uv) * 0.5f;
-
     glm::ivec2 template_min(af_pos - template_size / 2);
     glm::ivec2 template_max(af_pos + template_size / 2);
 
@@ -58,11 +56,12 @@ void LightFieldRenderer::phaseDetectAutofocus()
 
     disparity_shader->use();
 
+    glm::vec2 camera_plane_size = camera_array->uv_size + cfg->focal_length / cfg->f_stop;
+
     glUniform3fv(disparity_shader->getLocation("eye"), 1, &eye[0]);
     glUniform1f(disparity_shader->getLocation("focus_distance"), cfg->focus_distance);
-    glUniform1f(disparity_shader->getLocation("size"), 3.0f * std::max(camera_array->uv_size.x, camera_array->uv_size.y));
+    glUniform2fv(disparity_shader->getLocation("size"), 1, &camera_plane_size[0]);
     glUniform3fv(disparity_shader->getLocation("forward"), 1, &forward[0]);
-    glUniform2fv(disparity_shader->getLocation("center_pos"), 1, &center_pos[0]);
     glUniformMatrix4fv(disparity_shader->getLocation("VP"), 1, GL_FALSE, &VP[0][0]);
 
     for (int i = 0; i < 2; i++)
