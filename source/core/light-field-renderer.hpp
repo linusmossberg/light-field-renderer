@@ -8,6 +8,7 @@
 
 #include "../gl-util/shader.hpp"
 #include "../gl-util/quad.hpp"
+#include "../gl-util/n-sided-polygon.hpp"
 
 class CameraArray;
 class FBO;
@@ -79,6 +80,7 @@ private:
     MyShader visualize_autofocus_shader;
     MyShader template_match_shader;
     Quad quad;
+    NSidedPolygon aperture;
     std::unique_ptr<FBO> fbo0;
     std::unique_ptr<FBO> fbo1;
 };

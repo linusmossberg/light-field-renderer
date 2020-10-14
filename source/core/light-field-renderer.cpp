@@ -28,7 +28,7 @@
 #include "util.hpp"
 
 LightFieldRenderer::LightFieldRenderer(Widget* parent, const glm::ivec2 &fixed_size, const std::shared_ptr<Config> &cfg) : 
-    Canvas(parent, 1, false), quad(), cfg(cfg),
+    Canvas(parent, 1, false), quad(), cfg(cfg), aperture(32),
     draw_shader(screen_vert, normalize_aperture_filters_frag),
     visualize_autofocus_shader(screen_vert, visualize_autofocus_frag),
     template_match_shader(screen_vert, template_match_frag)
@@ -71,7 +71,7 @@ void LightFieldRenderer::draw_contents()
     }
 
     fbo0->bind();
-    quad.bind();
+    aperture.bind();
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -106,8 +106,8 @@ void LightFieldRenderer::draw_contents()
             st_size = (st_size / st_size.x) * (float)cfg->st_width;
             glUniform2fv(shader->getLocation("st_size"), 1, &st_size[0]);
             glUniform1f(shader->getLocation("st_distance"), cfg->st_distance);
-        }   
-        quad.draw();
+        }
+        aperture.draw();
     }
 
     float max_weight_sum = normalize_aperture ? 1.0f : fbo0->getMaxAlpha();
@@ -115,6 +115,8 @@ void LightFieldRenderer::draw_contents()
     fbo0->unBind();
     fbo0->bindTexture();
     draw_shader.use();
+
+    quad.bind();
 
     glUniform1f(draw_shader.getLocation("max_weight_sum"), max_weight_sum);
 
