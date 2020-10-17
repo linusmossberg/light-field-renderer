@@ -2,6 +2,7 @@
 
 #include <exception>
 #include <iostream>
+#include <fstream>
 
 #include <nanogui/nanogui.h>
 
@@ -67,6 +68,8 @@ void LightFieldRenderer::draw_contents()
 
         quad.draw();
 
+        if (save_next) saveRender();
+
         return;
     }
 
@@ -79,8 +82,6 @@ void LightFieldRenderer::draw_contents()
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_ONE, GL_ONE);
-
-    glDisable(GL_CULL_FACE);
 
     shader->use();
 
@@ -124,10 +125,14 @@ void LightFieldRenderer::draw_contents()
     glClear(GL_COLOR_BUFFER_BIT);
 
     quad.draw();
+
+    if (save_next) saveRender();
 }
 
 void LightFieldRenderer::move()
 {
+    image_distance = focus_breathing ? imageDistance(cfg->focal_length, cfg->focus_distance) : cfg->focal_length;
+
     eye = glm::vec3(cfg->x, cfg->y, cfg->z);
 
     if(!target_movement)
@@ -142,14 +147,14 @@ void LightFieldRenderer::move()
     double current_time = glfwGetTime();
     if (current_time > last_time)
     {
-        float scale = glm::length(camera_array->uv_size) * (float)(current_time - last_time);
+        float dx = cfg->speed * (float)(current_time - last_time);
 
-        if (moves[FORWARD]) eye += forward * scale;
-        if (moves[BACK])    eye -= forward * scale;
-        if (moves[RIGHT])   eye += right * scale;
-        if (moves[LEFT])    eye -= right * scale;
-        if (moves[UP])      eye += Y_AXIS * scale;
-        if (moves[DOWN])    eye -= Y_AXIS * scale;
+        if (moves[FORWARD]) eye += forward * dx;
+        if (moves[BACK])    eye -= forward * dx;
+        if (moves[RIGHT])   eye += right * dx;
+        if (moves[LEFT])    eye -= right * dx;
+        if (moves[UP])      eye += Y_AXIS * dx;
+        if (moves[DOWN])    eye -= Y_AXIS * dx;
 
         cfg->x = eye.x;
         cfg->y = eye.y;
@@ -167,15 +172,12 @@ void LightFieldRenderer::move()
     last_time = current_time;
 
     auto view = glm::lookAt(eye, eye + forward, Y_AXIS);
-    float image_distance = focus_breathing ? imageDistance(cfg->focal_length, cfg->focus_distance) : cfg->focal_length;
+    up = glm::vec3(view[0][1], view[1][1], view[2][1]);
+    right = glm::vec3(view[0][0], view[1][0], view[2][0]);
+
     auto projection = perspectiveProjection(image_distance, cfg->sensor_width, fb_size);
 
-    // Flip projection if uv plane is behind camera
-    if (eye.z < 0.0) projection = glm::scale(projection, glm::vec3(-1));
-
     VP = projection * view;
-
-    up = glm::vec3(view[0][1], view[1][1], view[2][1]);
 }
 
 void LightFieldRenderer::open()
@@ -222,9 +224,8 @@ bool LightFieldRenderer::mouse_drag_event(const nanogui::Vector2i& p, const nano
     {
         if (target_movement)
         {
-            float scale = glm::length(camera_array->uv_size);
-            cfg->x += scale * rel.x() / (float)fb_size.x;
-            cfg->y -= scale * rel.y() / (float)fb_size.y;
+            cfg->x += 0.5f * cfg->speed * rel.x() / (float)fb_size.x;
+            cfg->y -= 0.5f * cfg->speed * rel.y() / (float)fb_size.y;
             forward = glm::normalize(glm::vec3(cfg->target_x - cfg->x, cfg->target_y -cfg->y, cfg->target_z - cfg->z));
         }
         else
@@ -285,4 +286,54 @@ void LightFieldRenderer::keyboardEvent(int key, int scancode, int action, int mo
     case GLFW_KEY_SPACE: moves[UP] = pressed; break;
     case GLFW_KEY_LEFT_CONTROL: moves[DOWN] = pressed; break;
     }
+}
+
+void LightFieldRenderer::saveNextRender(const std::string &filename)
+{
+    savename = std::filesystem::path(filename).replace_extension(".tga").string();
+    save_next = true;
+}
+
+void LightFieldRenderer::saveRender()
+{
+    if (!save_next || savename.empty()) return;
+
+    struct HeaderTGA
+    {
+        HeaderTGA(uint16_t width, uint16_t height)
+            : width(width), height(height) {}
+
+    private:
+        uint8_t begin[12] = { 0, 0, 2 };
+        uint16_t width;
+        uint16_t height;
+        uint8_t end[2] = { 24, 32 };
+    };
+
+    int vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+
+    // GL_RGBA is required for some reason
+    std::vector<glm::u8vec4> data(vp[2] * vp[3]);
+    glReadPixels(vp[0], vp[1], vp[2], vp[3], GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+
+    HeaderTGA header(vp[2], vp[3]);
+
+    std::vector<glm::u8vec3> rearranged(vp[2] * vp[3]);
+    for (int y = 0; y < vp[3]; y++)
+    {
+        for (int x = 0; x < vp[2]; x++)
+        {
+            const auto &p = data[(vp[3] - 1 - y) * vp[2] + x];
+            rearranged[y * vp[2] + x] = { p.b, p.g, p.r };
+        }
+    }
+
+    std::ofstream image_file(savename, std::ios::binary);
+    image_file.write(reinterpret_cast<char*>(&header), sizeof(header));
+    image_file.write(reinterpret_cast<char*>(rearranged.data()), rearranged.size() * 3);
+    image_file.close();
+
+    save_next = false;
+    savename = "";
 }

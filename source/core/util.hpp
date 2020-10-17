@@ -20,5 +20,5 @@ inline glm::mat4 perspectiveProjection(float image_distance, float sensor_width,
 // From thin-lens equation
 inline float imageDistance(float focal_length, float focus_distance)
 {
-    return -(focal_length * focus_distance) / (focal_length - focus_distance);
+    return (focus_distance * focal_length) / (focus_distance - focal_length);
 }

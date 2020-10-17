@@ -6,6 +6,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#define STB_IMAGE_STATIC
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include "config.hpp"
 #include "camera-array.hpp"
 #include "../gl-util/fbo.hpp"
@@ -48,21 +52,22 @@ void LightFieldRenderer::phaseDetectAutofocus()
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_ONE, GL_ONE);
 
-    glDisable(GL_CULL_FACE);
-
     // Discard fragments outside of search region
     if(!visualize_autofocus)
         glScissor(search_min.x, search_min.y, search_size.x, search_size.y);
 
     disparity_shader->use();
 
-    glm::vec2 camera_plane_size = camera_array->uv_size + cfg->focal_length / cfg->f_stop;
+    // Size of visible part of focal plane
+    glm::vec2 focal_plane_size = (glm::vec2(fb_size) / (float)fb_size.x) * (cfg->sensor_width / image_distance) * (float)cfg->focus_distance;
 
+    glUniformMatrix4fv(disparity_shader->getLocation("VP"), 1, GL_FALSE, &VP[0][0]);
     glUniform3fv(disparity_shader->getLocation("eye"), 1, &eye[0]);
     glUniform1f(disparity_shader->getLocation("focus_distance"), cfg->focus_distance);
-    glUniform2fv(disparity_shader->getLocation("size"), 1, &camera_plane_size[0]);
+    glUniform2fv(disparity_shader->getLocation("size"), 1, &focal_plane_size[0]);
     glUniform3fv(disparity_shader->getLocation("forward"), 1, &forward[0]);
-    glUniformMatrix4fv(disparity_shader->getLocation("VP"), 1, GL_FALSE, &VP[0][0]);
+    glUniform3fv(disparity_shader->getLocation("right"), 1, &right[0]);
+    glUniform3fv(disparity_shader->getLocation("up"), 1, &up[0]);
 
     for (int i = 0; i < 2; i++)
     {
@@ -163,7 +168,6 @@ glm::vec3 LightFieldRenderer::pixelDirection(const glm::vec2 &px)
     float x = (float)cfg->sensor_width * ((px.x - (fb_size.x * 0.5f)) / fb_size.x);
     float y = (float)cfg->sensor_width * ((px.y - (fb_size.y * 0.5f)) / fb_size.x);
 
-    float image_distance = focus_breathing ? imageDistance(cfg->focal_length, cfg->focus_distance) : cfg->focal_length;
     return glm::normalize(right * x + up * y + forward * image_distance);
 }
 

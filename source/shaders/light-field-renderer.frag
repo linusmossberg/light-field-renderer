@@ -4,14 +4,14 @@ inline constexpr char *light_field_renderer_frag = R"(
 #version 330 core
 #line 5
 
-uniform sampler2D image;
+uniform sampler2D data_image;
 
 uniform float aperture_falloff;
 
 out vec4 color;
 
-in vec2 uv;
-in vec2 st;
+in vec2 aperture_texcoord;
+in vec2 data_image_coord;
 
 vec3 srgbGammaExpand(vec3 c)
 {
@@ -24,12 +24,12 @@ vec3 srgbGammaExpand(vec3 c)
 
 void main() 
 {
-    if(st.x < 0 || st.x > 1 || st.y < 0 || st.y > 1)
+    if(data_image_coord.x < 0.0 || data_image_coord.x > 1.0 || data_image_coord.y < 0.0 || data_image_coord.y > 1.0)
     {
         discard;
     }
 
-    float aperture_filter = pow(clamp(1.0 - length((uv - 0.5) * 2.0), 0, 1), aperture_falloff);
+    float aperture_filter = pow(clamp(1.0 - length((aperture_texcoord - 0.5) * 2.0), 0, 1), aperture_falloff);
 
-    color = vec4(srgbGammaExpand(texture(image, st).xyz) * aperture_filter, aperture_filter);
+    color = vec4(srgbGammaExpand(texture(data_image, data_image_coord).xyz) * aperture_filter, aperture_filter);
 })";

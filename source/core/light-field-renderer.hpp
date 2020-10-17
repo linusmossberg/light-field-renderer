@@ -22,8 +22,8 @@ public:
     virtual void draw_contents() override;
 
     void move();
-
     void open();
+    void saveNextRender(const std::string& filename);
 
     virtual bool mouse_drag_event(const nanogui::Vector2i& p, const nanogui::Vector2i& rel, int button, int modifiers) override;
     virtual bool scroll_event(const nanogui::Vector2i& p, const nanogui::Vector2f& rel) override;
@@ -34,6 +34,7 @@ public:
     glm::mat4 VP;
     const glm::vec3 Y_AXIS = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::ivec2 fb_size;
+    float image_distance;
 
     double last_time = std::numeric_limits<double>::max();
     float last_contrast = 0.0f;
@@ -83,4 +84,8 @@ private:
     NSidedPolygon aperture;
     std::unique_ptr<FBO> fbo0;
     std::unique_ptr<FBO> fbo1;
+
+    void saveRender();
+    bool save_next = false;
+    std::string savename = "";
 };

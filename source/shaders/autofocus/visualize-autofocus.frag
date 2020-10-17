@@ -28,19 +28,32 @@ vec2 gammaCompress(vec2 c)
 void main()
 {
     ivec2 px = ivec2(interpolated_texcoord * size);
-
     ivec2 search_size = search_max - search_min;
+    ivec2 template_size = template_max - template_min;
+    const int w = 2;
     
     if(px.x < search_size.x && px.y < search_size.y)
     {
         vec2 c = gammaCompress(texture(disparity_image, (search_min + px) / vec2(size)).xy);
         color = vec4(vec3(c.r), 1.0);
+
+        ivec2 offset = (search_size - template_size) / 2;
+        if(px.x < template_size.x + offset.x + w && px.y < template_size.y + offset.y + w && px.x > offset.x - w && px.y > offset.y - w)
+        {
+            if(px.x > template_size.x + offset.x || px.y > template_size.y + offset.y || px.x < offset.x || px.y < offset.y)
+            {
+                color *= 0.1;
+            }
+        }
+        else
+        {
+            color *= 0.75;
+        }
         return;
     }
 
     if(px.x < search_size.x * 2 && px.y < search_size.y)
     {
-        ivec2 template_size = template_max - template_min;
         ivec2 offset = ivec2(search_size.x, 0) + (search_size - template_size) / 2;
         if(px.x < template_size.x + offset.x && px.y < template_size.y + offset.y && px.x > offset.x && px.y > offset.y)
         {
@@ -51,9 +64,6 @@ void main()
         color = vec4(0.25);
         return;
     }
-    
-
-    const int w = 2;
 
     vec2 c = gammaCompress(texture(disparity_image, interpolated_texcoord).xy);
 

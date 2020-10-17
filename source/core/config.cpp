@@ -3,8 +3,6 @@
 #include <fstream>
 #include <sstream>
 
-constexpr float PI = 3.14159265358979323846f;
-
 void Config::open(std::filesystem::path path)
 {
     folder = path.parent_path().string();
@@ -41,6 +39,7 @@ void Config::open(std::filesystem::path path)
                     throw std::runtime_error("Invalid config file.");
                 }
             };
+            
 
             if (name == "focal-length")        readProperty(focal_length, 1e-3f);
             else if (name == "sensor-size")    readProperty(sensor_width, 1e-3f);
@@ -48,8 +47,9 @@ void Config::open(std::filesystem::path path)
             else if (name == "focus-distance") readProperty(focus_distance);
             else if (name == "st-width")       readProperty(st_width);
             else if (name == "st-distance")    readProperty(st_distance);
-            else if (name == "yaw")            readProperty(yaw, PI / 180.0f);
-            else if (name == "pitch")          readProperty(pitch, PI / 180.0f);
+            else if (name == "yaw")            readProperty(yaw, glm::radians(1.0f));
+            else if (name == "pitch")          readProperty(pitch, glm::radians(1.0f));
+            else if (name == "speed")          readProperty(speed);
         }
     }
 }
@@ -68,6 +68,8 @@ void Config::defaults()
     target_y = Property(0.0f, -5.0f, 5.0f);
     target_z = Property(-3.0f, -10.0f, 0.0f);
 
+    speed = Property(0.2f, 0.01f, 1.0f);
+
     x = Property(0.0f, -3.0f, 3.0f);
     y = Property(0.0f, -3.0f, 3.0f);
     z = Property(0.2f, -3.0f, 3.0f);
@@ -78,6 +80,6 @@ void Config::defaults()
     template_size = Property(64.0f, 16.0f, 128.0f);
     search_scale = Property(2.0f, 1.5f, 4.0f);
 
-    pitch = Property(0.0f, -89.9f, 89.9f, PI / 180.0f);
-    yaw = Property(0.0f, -89.9f, 89.9f, PI / 180.0f);
+    pitch = Property(0.0f, -89.9f, 89.9f, glm::radians(1.0f));
+    yaw = Property(0.0f, -89.9f, 89.9f, glm::radians(1.0f));
 }

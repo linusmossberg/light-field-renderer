@@ -56,6 +56,8 @@ public:
     Property target_y;
     Property target_z;
 
+    Property speed;
+
     Property x;
     Property y;
     Property z;

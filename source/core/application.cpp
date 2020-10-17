@@ -31,6 +31,15 @@ Application::Application() :
     light_field_renderer = new LightFieldRenderer(window, glm::ivec2(512), cfg);
     light_field_renderer->set_visible(true);
 
+    b = new Button(window->button_panel(), "", FA_CAMERA);
+    b->set_tooltip("Save Screenshot");
+    b->set_callback([this]
+    {
+        std::string path = file_dialog({{"tga", ""}}, true);
+        if (path.empty()) return;
+        light_field_renderer->saveNextRender(path);
+    });
+
     window = new Window(this, "Menu");
     window->set_position(Vector2i(50, 50));
     window->set_layout(new GroupLayout(15, 6, 15, 0));
@@ -45,7 +54,16 @@ Application::Application() :
     b = new Button(window, "Open", FA_FOLDER_OPEN);
     b->set_callback([this]
     {
-        std::string path = file_dialog({ {"cfg", "Configuration File"}, {"jpg", "Configuration File"} }, false);
+        
+        std::string path = file_dialog
+        (
+            { 
+                {"cfg", ""}, {"jpeg", ""}, { "jpg","" }, {"png",""}, 
+                {"tga",""}, {"bmp",""}, {"psd",""}, {"gif",""}, 
+                {"hdr",""}, {"pic",""}, {"pnm", ""} 
+            }, false
+        );
+
         if (path.empty()) return;
         try
         {
@@ -112,20 +130,22 @@ Application::Application() :
     target->set_fixed_size({ 125, 20 });
     target->set_tooltip("The camera looks at the center of the scene and the mouse controls the camera position.");
 
-    free->set_callback([this, target]
+    free->set_change_callback([this, target](bool state)
     {
-        light_field_renderer->target_movement = false;
-        target->set_pushed(false);
+        light_field_renderer->target_movement = !state;
+        target->set_pushed(!state);
     });
-    target->set_callback([this, free]()
+    target->set_change_callback([this, free](bool state)
     {
-        light_field_renderer->target_movement = true;
-        free->set_pushed(false);
+        light_field_renderer->target_movement = state;
+        free->set_pushed(!state);
     });
 
     float_box_rows.push_back(PropertyBoxRow(window, { &cfg->x, &cfg->y, &cfg->z }, "Position", "m", 3, 0.1f));
     float_box_rows.push_back(PropertyBoxRow(window, { &cfg->yaw, &cfg->pitch }, "Rotation", "°", 1, 1.0f));
     float_box_rows.push_back(PropertyBoxRow(window, { &cfg->target_x, &cfg->target_y, &cfg->target_z }, "Target", "m", 3, 1.0f));
+
+    sliders.emplace_back(window, &cfg->speed, "Speed", "m/s", 2);
 
     new Label(window, "Autofocus", "sans-bold", 20);
 

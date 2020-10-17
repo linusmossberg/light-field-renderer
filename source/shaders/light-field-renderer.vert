@@ -19,8 +19,8 @@ uniform vec2 data_eye;
 layout (location = 0) in vec2 position;
 layout (location = 1) in vec2 texcoord;
 
-out vec2 uv;
-out vec2 st;
+out vec2 aperture_texcoord;
+out vec2 data_image_coord;
 
 /******************************************************************
 Forward declared fuction that is appended later depending on the 
@@ -36,13 +36,14 @@ void main()
     // Project aperture point to focal plane through the ray that passes through the data camera
     vec3 a2d = normalize(vec3(data_eye, 0.0) - aperture);
     vec3 focal_point = aperture + a2d * (focus_distance / dot(a2d, forward));
+    
+    aperture_texcoord = texcoord;
 
-    // Project eye point to to camera plane through the ray that passes through this focal point
-    vec3 e2f = normalize(focal_point - eye);
-    vec2 camera_plane_aperture = eye.xy + e2f.xy * (-eye.z / e2f.z);
+    // Point on focal plane projected to the image space of the data camera
+    data_image_coord = projectToDataCamera(focal_point);
 
-    st = projectToDataCamera(focal_point);
-    uv = texcoord;
-
-    gl_Position = VP * vec4(camera_plane_aperture, 0.0, 1.0); // uv
+    // Point on focal plane projected to the image space of the desired camera. The point is projected to a plane parallel 
+    // with the camera plane first. This seems to handle some edge cases close to z=0 that I haven't figured out yet.
+    vec3 e2p = normalize(focal_point - eye);
+    gl_Position = VP * vec4(vec3(eye.xy + e2p.xy * (-1 / e2p.z), eye.z - 1), 1.0);
 })";

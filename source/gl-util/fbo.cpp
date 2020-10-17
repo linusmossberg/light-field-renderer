@@ -41,10 +41,6 @@ void FBO::bind()
     glGetIntegerv(GL_SCISSOR_BOX, prev_scissor);
     glScissor(0, 0, size.x, size.y);
 
-    // Not sure if necessary since I don't attach stencil or depth buffers to FBO
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_STENCIL_TEST);
-
     glBindFramebuffer(GL_FRAMEBUFFER, handle);
 }
 

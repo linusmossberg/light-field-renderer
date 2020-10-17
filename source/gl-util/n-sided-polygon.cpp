@@ -15,7 +15,7 @@ NSidedPolygon::NSidedPolygon(int N)
 
     std::vector<glm::vec4> vertices(N + 1); // xyst
     vertices[0] = glm::vec4(0.0f, 0.0f, 0.5f, 0.5f);
-    vertices[1] = glm::vec4(std::cos(0), std::sin(0), std::cos(0) + 0.5f, std::sin(0) + 0.5f);
+    vertices[1] = glm::vec4(0.5f * std::cos(0), 0.5f * std::sin(0), 0.5f * std::cos(0) + 0.5f, 0.5f * std::sin(0) + 0.5f);
 
     for (int i = 1; i < N; i++)
     {
@@ -24,7 +24,7 @@ NSidedPolygon::NSidedPolygon(int N)
         float y = 0.5f * std::sin(theta);
 
         vertices[i + 1] = glm::vec4(x, y, x + 0.5f, y + 0.5f);
-        triangles[i - 1] = glm::uvec3(0, i + 1, i);
+        triangles[i - 1] = glm::uvec3(0, i, i + 1);
     }
     triangles[N - 1] = glm::uvec3(0, N, 1);
 

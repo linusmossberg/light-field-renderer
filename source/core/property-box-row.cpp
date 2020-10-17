@@ -17,7 +17,7 @@ Application::PropertyBoxRow::PropertyBoxRow(
     label->set_fixed_width(86);
     label->set_tooltip(tooltip);
 
-    int width = 250 / properties.size();
+    int width = 270 / properties.size();
 
     for (size_t i = 0; i < properties.size(); i++)
     {

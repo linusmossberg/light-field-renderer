@@ -8,6 +8,8 @@ inline constexpr char *disparity_vert = R"(
 uniform float focus_distance;
 uniform vec3 eye;
 uniform vec3 forward;
+uniform vec3 up;
+uniform vec3 right;
 uniform mat4 VP;
 
 // Properties of current data camera
@@ -27,12 +29,11 @@ vec2 projectToDataCamera(vec3 point);
 
 void main() 
 {
-    vec2 camera_plane = position * size;
-
-    vec3 direction = normalize(vec3(camera_plane, 0.0) - eye);
-    vec3 focal_point = eye + direction * (focus_distance / dot(direction, forward));
+    vec2 p = position * size;
+    vec3 focal_point = eye + forward * focus_distance + p.x * right + p.y * up;
 
     st = projectToDataCamera(focal_point);
 
-    gl_Position = VP * vec4(camera_plane, 0.0, 1.0);
+    vec3 e2p = normalize(focal_point - eye);
+    gl_Position = VP * vec4(vec3(eye.xy + e2p.xy * (-1 / e2p.z), eye.z - 1), 1.0);
 })";
