@@ -6,18 +6,21 @@ using namespace nanogui;
 Application::PropertyBoxRow::PropertyBoxRow(
     Widget* window, const std::vector<Config::Property*> &properties, 
     const std::string &name, const std::string &unit, size_t precision, 
-    float step, std::string tooltip) 
+    float step, std::string tooltip, size_t total_width)
     : 
     properties(properties), last_values(properties.size()), float_boxes(properties.size())
 {
-    Widget* panel = new Widget(window);
-    panel->set_layout(new GridLayout(Orientation::Horizontal, 1 + properties.size(), Alignment::Fill));
+    Widget* panel = window;
+    if (!name.empty())
+    {
+        panel = new Widget(window);
+        panel->set_layout(new GridLayout(Orientation::Horizontal, 1 + properties.size(), Alignment::Fill));
+        Label* label = new Label(panel, name, "sans-bold");
+        label->set_fixed_width(86);
+        label->set_tooltip(tooltip);
+    }
 
-    Label* label = new Label(panel, name, "sans-bold");
-    label->set_fixed_width(86);
-    label->set_tooltip(tooltip);
-
-    int width = 270 / properties.size();
+    int width = total_width / properties.size();
 
     for (size_t i = 0; i < properties.size(); i++)
     {

@@ -34,7 +34,7 @@ void main()
     vec3 aperture = eye - (position.x * right + position.y * up) * aperture_diameter;
 
     // Project aperture point to focal plane through the ray that passes through the data camera
-    vec3 a2d = normalize(vec3(data_eye, 0.0) - aperture);
+    vec3 a2d = vec3(data_eye, 0.0) - aperture;
     vec3 focal_point = aperture + a2d * (focus_distance / dot(a2d, forward));
     
     aperture_texcoord = texcoord;
@@ -45,5 +45,5 @@ void main()
     // Point on focal plane projected to the image space of the desired camera. The point is projected to a plane parallel 
     // with the camera plane first. This seems to handle some edge cases close to z=0 that I haven't figured out yet.
     vec3 e2p = normalize(focal_point - eye);
-    gl_Position = VP * vec4(vec3(eye.xy + e2p.xy * (-1 / e2p.z), eye.z - 1), 1.0);
+    gl_Position = VP * vec4(eye.xy + e2p.xy * (-1 / e2p.z), eye.z - 1, 1.0);
 })";

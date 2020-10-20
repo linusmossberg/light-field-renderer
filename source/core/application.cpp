@@ -22,13 +22,15 @@ Application::Application() :
 
     Window *window;
     Button* b;
+    Widget* panel;
+    Label* label;
 
     window = new Window(this, "Render");
-    window->set_position(Vector2i(600, 50));
+    window->set_position(Vector2i(460, 20));
     window->set_layout(new GroupLayout());
     window->set_theme(theme);
 
-    light_field_renderer = new LightFieldRenderer(window, glm::ivec2(512), cfg);
+    light_field_renderer = new LightFieldRenderer(window, cfg);
     light_field_renderer->set_visible(true);
 
     b = new Button(window->button_panel(), "", FA_CAMERA);
@@ -41,7 +43,7 @@ Application::Application() :
     });
 
     window = new Window(this, "Menu");
-    window->set_position(Vector2i(50, 50));
+    window->set_position({ 20, 20 });
     window->set_layout(new GroupLayout(15, 6, 15, 0));
     window->set_theme(theme);
 
@@ -49,12 +51,16 @@ Application::Application() :
     b->set_font_size(15);
     b->set_tooltip("Controls");
 
-    new Label(window, "Add Light Field", "sans-bold", 20);
+    panel = new Widget(window);
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill, 0, 5));
 
-    b = new Button(window, "Open", FA_FOLDER_OPEN);
+    label = new Label(panel, "Light Field", "sans-bold");
+    label->set_fixed_width(86);
+
+    b = new Button(panel, "Open", FA_FOLDER_OPEN);
+    b->set_fixed_size({ 270, 20 });
     b->set_callback([this]
     {
-        
         std::string path = file_dialog
         (
             { 
@@ -76,6 +82,23 @@ Application::Application() :
         }
     });
 
+
+    panel = new Widget(window);
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 4, Alignment::Fill));
+    label = new Label(panel, "Render Size", "sans-bold");
+    label->set_fixed_width(86);
+
+    float_box_rows.push_back(PropertyBoxRow(panel, { &cfg->width, &cfg->height }, "", "px", 0, 1.0f, "", 180));
+
+    b = new Button(panel, "Set");
+    b->set_fixed_size({ 90, 20 });
+    b->set_callback([this, window]
+        { 
+            light_field_renderer->resize();
+            perform_layout();
+        }
+    );
+
     new Label(window, "Optics", "sans-bold", 20);
     sliders.emplace_back(window, &cfg->focal_length, "Focal Length", "mm", 1);
     sliders.emplace_back(window, &cfg->sensor_width, "Sensor Width", "mm", 1);
@@ -84,10 +107,10 @@ Application::Application() :
     sliders.emplace_back(window, &cfg->f_stop, "F-Stop", "", 1);
     sliders.emplace_back(window, &cfg->aperture_falloff, "Filter Falloff", "", 2);
 
-    Widget* panel = new Widget(window);
+    panel = new Widget(window);
     panel->set_layout(new GridLayout(Orientation::Horizontal, 3, Alignment::Fill, 0, 5));
 
-    Label* label = new Label(panel, "Option", "sans-bold");
+    label = new Label(panel, "Option", "sans-bold");
     label->set_fixed_width(86);
 
     Button* normalize = new Button(panel, "Normalize Aperture");
@@ -113,33 +136,58 @@ Application::Application() :
     new Label(window, "Navigation", "sans-bold", 20);
 
     panel = new Widget(window);
-    panel->set_layout(new GridLayout(Orientation::Horizontal, 3, Alignment::Fill, 0, 5));
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 4, Alignment::Fill, 0, 5));
 
     label = new Label(panel, "Mode", "sans-bold");
     label->set_fixed_width(86);
 
     Button* free = new Button(panel, "Free", FA_STREET_VIEW);
     free->set_flags(Button::Flags::ToggleButton);
-    free->set_pushed(!light_field_renderer->target_movement);
-    free->set_fixed_size({ 125, 20 });
+    free->set_pushed(light_field_renderer->navigation == LightFieldRenderer::Navigation::FREE);
+    free->set_fixed_size({ 83, 20 });
     free->set_tooltip("The camera is rotated freely with the mouse.");
 
     Button* target = new Button(panel, "Target", FA_BULLSEYE);
     target->set_flags(Button::Flags::ToggleButton);
-    target->set_pushed(light_field_renderer->target_movement);
-    target->set_fixed_size({ 125, 20 });
+    target->set_pushed(light_field_renderer->navigation == LightFieldRenderer::Navigation::TARGET);
+    target->set_fixed_size({ 83, 20 });
     target->set_tooltip("The camera looks at the center of the scene and the mouse controls the camera position.");
 
-    free->set_change_callback([this, target](bool state)
-    {
-        light_field_renderer->target_movement = !state;
-        target->set_pushed(!state);
-    });
-    target->set_change_callback([this, free](bool state)
-    {
-        light_field_renderer->target_movement = state;
-        free->set_pushed(!state);
-    });
+    Button* animate = new Button(panel, "Animate", FA_BULLSEYE);
+    animate->set_flags(Button::Flags::ToggleButton);
+    animate->set_pushed(light_field_renderer->navigation == LightFieldRenderer::Navigation::ANIMATE);
+    animate->set_fixed_size({ 83, 20 });
+
+    free->set_change_callback
+    (
+        [this, free, target, animate](bool state)
+        {
+            light_field_renderer->navigation = LightFieldRenderer::Navigation::FREE;
+            free->set_pushed(true);
+            target->set_pushed(false);
+            animate->set_pushed(false);
+        }
+    );
+    target->set_change_callback
+    (
+        [this, free, target, animate](bool state)
+        {
+            light_field_renderer->navigation = LightFieldRenderer::Navigation::TARGET;
+            free->set_pushed(false);
+            target->set_pushed(true);
+            animate->set_pushed(false);
+        }
+    );
+    animate->set_change_callback
+    (
+        [this, free, target, animate](bool state)
+        {
+            light_field_renderer->navigation = LightFieldRenderer::Navigation::ANIMATE;
+            free->set_pushed(false);
+            target->set_pushed(false);
+            animate->set_pushed(true);
+        }
+    );
 
     float_box_rows.push_back(PropertyBoxRow(window, { &cfg->x, &cfg->y, &cfg->z }, "Position", "m", 3, 0.1f));
     float_box_rows.push_back(PropertyBoxRow(window, { &cfg->yaw, &cfg->pitch }, "Rotation", "°", 1, 1.0f));

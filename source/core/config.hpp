@@ -71,5 +71,8 @@ public:
     Property template_size;
     Property search_scale;
 
+    Property width;
+    Property height;
+
     std::string folder;
 };

@@ -23,9 +23,12 @@ private:
                        const std::string &unit, size_t precision);
 
         nanogui::Slider* slider;
+        nanogui::TextBox* text_box;
         Config::Property* const prop;
 
-        float last_value;
+        float last_normalized_value;
+        size_t precision;
+        bool initiated = false;
 
         void updateValue();
     };
@@ -34,7 +37,7 @@ private:
     {
         PropertyBoxRow(nanogui::Widget* window, const std::vector<Config::Property*> &properties, 
                        const std::string &name, const std::string &unit, size_t precision, float step,
-                       std::string tooltip = "");
+                       std::string tooltip = "", size_t total_width = 270);
 
         std::vector<Config::Property*> properties;
         std::vector<nanogui::FloatBox<float>*> float_boxes;

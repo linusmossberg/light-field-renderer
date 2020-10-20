@@ -28,22 +28,13 @@
 #include "../gl-util/fbo.hpp"
 #include "util.hpp"
 
-LightFieldRenderer::LightFieldRenderer(Widget* parent, const glm::ivec2 &fixed_size, const std::shared_ptr<Config> &cfg) : 
+LightFieldRenderer::LightFieldRenderer(Widget* parent, const std::shared_ptr<Config> &cfg) : 
     Canvas(parent, 1, false), quad(), cfg(cfg), aperture(32),
     draw_shader(screen_vert, normalize_aperture_filters_frag),
     visualize_autofocus_shader(screen_vert, visualize_autofocus_frag),
     template_match_shader(screen_vert, template_match_frag)
 {
-    set_fixed_size({ fixed_size.x, fixed_size.y });
-    fb_size = fixed_size;
-    if (draw_border())
-    {
-        fb_size -= 2;
-    }
-    fb_size = glm::ivec2(glm::vec2(fb_size) * screen()->pixel_ratio());
-
-    fbo0 = std::make_unique<FBO>(fb_size);
-    fbo1 = std::make_unique<FBO>(fb_size);
+    resize();
 }
 
 void LightFieldRenderer::draw_contents()
@@ -131,23 +122,26 @@ void LightFieldRenderer::draw_contents()
 
 void LightFieldRenderer::move()
 {
-    image_distance = focus_breathing ? imageDistance(cfg->focal_length, cfg->focus_distance) : cfg->focal_length;
 
-    eye = glm::vec3(cfg->x, cfg->y, cfg->z);
+    if (navigation == Navigation::ANIMATE)
+    {
+        animate();
+    }
 
-    if(!target_movement)
+    if(navigation == Navigation::FREE)
     {
         forward = glm::vec3( std::sin(cfg->yaw),
                             -std::sin(cfg->pitch) * std::cos(cfg->yaw),
                             -std::cos(cfg->pitch) * std::cos(cfg->yaw));
     }
-    
-    right = glm::normalize(glm::cross(forward, Y_AXIS));
 
     double current_time = glfwGetTime();
-    if (current_time > last_time)
+    if (current_time > last_time && navigation != Navigation::ANIMATE)
     {
         float dx = cfg->speed * (float)(current_time - last_time);
+
+        eye = glm::vec3(cfg->x, cfg->y, cfg->z);
+        right = glm::normalize(glm::cross(forward, Y_AXIS));
 
         if (moves[FORWARD]) eye += forward * dx;
         if (moves[BACK])    eye -= forward * dx;
@@ -159,22 +153,23 @@ void LightFieldRenderer::move()
         cfg->x = eye.x;
         cfg->y = eye.y;
         cfg->z = eye.z;
-
-        eye = glm::vec3(cfg->x, cfg->y, cfg->z);
-
-        if (target_movement)
-        {
-            forward = glm::normalize(glm::vec3(cfg->target_x - eye.x, cfg->target_y - eye.y, cfg->target_z - eye.z));
-            cfg->yaw = std::asin(forward.x);
-            cfg->pitch = std::atan2(-forward.y, -forward.z);
-        }
     }
     last_time = current_time;
+
+    eye = glm::vec3(cfg->x, cfg->y, cfg->z);
+
+    if (navigation != Navigation::FREE)
+    {
+        forward = glm::normalize(glm::vec3(cfg->target_x - eye.x, cfg->target_y - eye.y, cfg->target_z - eye.z));
+        cfg->yaw = std::asin(forward.x);
+        cfg->pitch = std::atan2(-forward.y, -forward.z);
+    }
 
     auto view = glm::lookAt(eye, eye + forward, Y_AXIS);
     up = glm::vec3(view[0][1], view[1][1], view[2][1]);
     right = glm::vec3(view[0][0], view[1][0], view[2][0]);
 
+    image_distance = focus_breathing ? imageDistance(cfg->focal_length, cfg->focus_distance) : cfg->focal_length;
     auto projection = perspectiveProjection(image_distance, cfg->sensor_width, fb_size);
 
     VP = projection * view;
@@ -222,15 +217,15 @@ bool LightFieldRenderer::mouse_drag_event(const nanogui::Vector2i& p, const nano
 {
     if (mouse_active && !click)
     {
-        if (target_movement)
+        if (navigation == Navigation::TARGET)
         {
             cfg->x += 0.5f * cfg->speed * rel.x() / (float)fb_size.x;
-            cfg->y -= 0.5f * cfg->speed * rel.y() / (float)fb_size.y;
+            cfg->y -= 0.5f * cfg->speed * rel.y() / (float)fb_size.x;
             forward = glm::normalize(glm::vec3(cfg->target_x - cfg->x, cfg->target_y -cfg->y, cfg->target_z - cfg->z));
         }
-        else
+        else if(navigation == Navigation::FREE)
         {
-            cfg->pitch += rel.y() / (float)fb_size.y;
+            cfg->pitch += rel.y() / (float)fb_size.x;
             cfg->yaw += rel.x() / (float)fb_size.x;
         }
     }
@@ -288,6 +283,21 @@ void LightFieldRenderer::keyboardEvent(int key, int scancode, int action, int mo
     }
 }
 
+void LightFieldRenderer::resize()
+{
+    fb_size = { cfg->width, cfg->height };
+    set_fixed_size({ fb_size.x, fb_size.y });
+
+    if (draw_border())
+    {
+        fb_size -= 2;
+    }
+    fb_size = glm::ivec2(glm::vec2(fb_size) * screen()->pixel_ratio());
+
+    fbo0 = std::make_unique<FBO>(fb_size);
+    fbo1 = std::make_unique<FBO>(fb_size);
+}
+
 void LightFieldRenderer::saveNextRender(const std::string &filename)
 {
     savename = std::filesystem::path(filename).replace_extension(".tga").string();
@@ -336,4 +346,39 @@ void LightFieldRenderer::saveRender()
 
     save_next = false;
     savename = "";
+}
+
+void LightFieldRenderer::animate()
+{
+    //savename = std::string("C:\\Users\\Laptop\\Documents\\2020-HT1\\TNM089\\light-field-renderer\\test\\") + std::to_string(current_frame) + ".tga";
+    //save_next = true;
+
+    float f = current_frame / (float)animation_frames;
+    float theta = glm::radians(f * 360.0f);
+    float phi = glm::radians(f * 3.0f * 360.0f);
+    glm::vec3 r = glm::vec3(camera_array->uv_size, 0.0f) / 2.0f;
+    r.z = std::max(r.x, r.y) * 2;
+
+    cfg->x = r.x * std::cos(phi) * std::sin(theta);
+    cfg->y = r.y * std::sin(phi) * std::sin(theta);
+
+    cfg->z = r.z * std::cos(theta);
+
+    cfg->target_x = glm::mix(0.0f, (float)cfg->x, (1.0f - (1.0f + std::cos(theta * 2.0f)) / 2.0f));
+    cfg->target_y = glm::mix(0.0f, (float)cfg->y, (1.0f - (1.0f + std::cos(theta * 2.0f)) / 2.0f));
+
+    float lim = 0.001f;
+
+    if (cfg->z > 0.0f)
+    {
+        if (cfg->z < lim) cfg->z = lim;
+    }
+    else
+    {
+        if (cfg->z > -lim) cfg->z = -lim;
+    }
+
+    cfg->target_z = cfg->z - r.z * 4;
+
+    current_frame = (current_frame + 1) % animation_frames;
 }

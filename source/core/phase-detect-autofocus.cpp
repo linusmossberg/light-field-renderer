@@ -6,10 +6,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#define STB_IMAGE_STATIC
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #include "config.hpp"
 #include "camera-array.hpp"
 #include "../gl-util/fbo.hpp"

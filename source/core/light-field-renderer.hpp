@@ -17,12 +17,13 @@ class Config;
 class LightFieldRenderer : public nanogui::Canvas
 {
 public:
-    LightFieldRenderer(Widget* parent, const glm::ivec2 &fixed_size, const std::shared_ptr<Config> &cfg);
+    LightFieldRenderer(Widget* parent, const std::shared_ptr<Config> &cfg);
 
     virtual void draw_contents() override;
 
     void move();
     void open();
+    void resize();
     void saveNextRender(const std::string& filename);
 
     virtual bool mouse_drag_event(const nanogui::Vector2i& p, const nanogui::Vector2i& rel, int button, int modifiers) override;
@@ -53,7 +54,15 @@ public:
 
     std::vector<bool> moves = std::vector<bool>(Move::NUM, false);
 
-    bool target_movement = false;
+    enum Navigation
+    {
+        FREE,
+        TARGET,
+        ANIMATE
+    };
+
+    Navigation navigation = Navigation::FREE;
+
     bool mouse_active = false;
     bool normalize_aperture = true;
     bool continuous_autofocus = false;
@@ -88,4 +97,8 @@ private:
     void saveRender();
     bool save_next = false;
     std::string savename = "";
+
+    void animate();
+    int animation_frames = 200;
+    int current_frame = 0;
 };

@@ -80,6 +80,9 @@ void Config::defaults()
     template_size = Property(64.0f, 16.0f, 128.0f);
     search_scale = Property(2.0f, 1.5f, 4.0f);
 
+    width = Property(512.0f, 256.0f, 1920.0f);
+    height = Property(512.0f, 256.0f, 1080.0f);
+
     pitch = Property(0.0f, -89.9f, 89.9f, glm::radians(1.0f));
     yaw = Property(0.0f, -89.9f, 89.9f, glm::radians(1.0f));
 }

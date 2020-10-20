@@ -30,6 +30,7 @@ FBO::FBO(const glm::ivec2 &size) : size(size), data(size.x * size.y, glm::vec4(0
 
 FBO::~FBO()
 {
+    glDeleteTextures(1, &texture);
     glDeleteFramebuffers(1, &handle);
 }
 
@@ -40,6 +41,9 @@ void FBO::bind()
 
     glGetIntegerv(GL_SCISSOR_BOX, prev_scissor);
     glScissor(0, 0, size.x, size.y);
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
 
     glBindFramebuffer(GL_FRAMEBUFFER, handle);
 }
