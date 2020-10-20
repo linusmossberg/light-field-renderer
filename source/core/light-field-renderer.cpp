@@ -102,7 +102,7 @@ void LightFieldRenderer::draw_contents()
         aperture.draw();
     }
 
-    float max_weight_sum = normalize_aperture ? 1.0f : fbo0->getMaxAlpha();
+    float max_weight_sum = normalize_aperture ? 0.0f : fbo0->getMaxAlpha();
 
     fbo0->unBind();
     fbo0->bindTexture();
@@ -353,19 +353,19 @@ void LightFieldRenderer::animate()
     //savename = std::string("C:\\Users\\Laptop\\Documents\\2020-HT1\\TNM089\\light-field-renderer\\test\\") + std::to_string(current_frame) + ".tga";
     //save_next = true;
 
-    float f = current_frame / (float)animation_frames;
+    float f = current_frame / std::round(cfg->animation_frames);
     float theta = glm::radians(f * 360.0f);
-    float phi = glm::radians(f * 3.0f * 360.0f);
+    float phi = glm::radians(f * std::round(cfg->animation_cycles) * 360.0f);
     glm::vec3 r = glm::vec3(camera_array->uv_size, 0.0f) / 2.0f;
-    r.z = std::max(r.x, r.y) * 2;
+    r.z = std::max(r.x, r.y) * cfg->animation_depth;
 
     cfg->x = r.x * std::cos(phi) * std::sin(theta);
     cfg->y = r.y * std::sin(phi) * std::sin(theta);
 
     cfg->z = r.z * std::cos(theta);
 
-    cfg->target_x = glm::mix(0.0f, (float)cfg->x, (1.0f - (1.0f + std::cos(theta * 2.0f)) / 2.0f));
-    cfg->target_y = glm::mix(0.0f, (float)cfg->y, (1.0f - (1.0f + std::cos(theta * 2.0f)) / 2.0f));
+    cfg->target_x = glm::mix((1.0f - cfg->animation_sway) * cfg->x, (float)cfg->x, (1.0f - (1.0f + std::cos(theta * 2.0f)) / 2.0f));
+    cfg->target_y = glm::mix((1.0f - cfg->animation_sway) * cfg->y, (float)cfg->y, (1.0f - (1.0f + std::cos(theta * 2.0f)) / 2.0f));
 
     float lim = 0.001f;
 
@@ -380,5 +380,5 @@ void LightFieldRenderer::animate()
 
     cfg->target_z = cfg->z - r.z * 4;
 
-    current_frame = (current_frame + 1) % animation_frames;
+    current_frame = (current_frame + 1) % (int)std::round(cfg->animation_frames);
 }

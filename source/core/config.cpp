@@ -74,6 +74,11 @@ void Config::defaults()
     y = Property(0.0f, -3.0f, 3.0f);
     z = Property(0.2f, -3.0f, 3.0f);
 
+    animation_sway = Property(1.0f, 0.0f, 1.0f);
+    animation_depth = Property(2.0f, 0.1f, 10.0f);
+    animation_cycles = Property(3.0f, 1.0f, 10.0f);
+    animation_frames = Property(200.0f, 50.0f, 500.0f);
+
     autofocus_x = Property(0.5f, 0.0f, 1.0f);
     autofocus_y = Property(0.5f, 0.0f, 1.0f);
 

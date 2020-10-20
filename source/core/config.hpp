@@ -65,6 +65,11 @@ public:
     Property pitch;
     Property yaw;
 
+    Property animation_sway;
+    Property animation_depth;
+    Property animation_cycles;
+    Property animation_frames;
+
     Property autofocus_x;
     Property autofocus_y;
 

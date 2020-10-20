@@ -71,10 +71,14 @@ Application::Application() :
         );
 
         if (path.empty()) return;
+
         try
         {
             cfg->open(path);
             light_field_renderer->open();
+
+            light_field_renderer->resize();
+            perform_layout();
         }
         catch (const std::exception &ex)
         {
@@ -194,6 +198,11 @@ Application::Application() :
     float_box_rows.push_back(PropertyBoxRow(window, { &cfg->target_x, &cfg->target_y, &cfg->target_z }, "Target", "m", 3, 1.0f));
 
     sliders.emplace_back(window, &cfg->speed, "Speed", "m/s", 2);
+
+    sliders.emplace_back(window, &cfg->animation_sway, "Sway", "", 1);
+    sliders.emplace_back(window, &cfg->animation_depth, "Depth", "", 1);
+    sliders.emplace_back(window, &cfg->animation_cycles, "Cycles", "", 0);
+    sliders.emplace_back(window, &cfg->animation_frames, "Frames", "", 0);
 
     new Label(window, "Autofocus", "sans-bold", 20);
 
