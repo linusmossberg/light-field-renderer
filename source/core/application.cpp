@@ -149,18 +149,21 @@ Application::Application() :
     free->set_flags(Button::Flags::ToggleButton);
     free->set_pushed(light_field_renderer->navigation == LightFieldRenderer::Navigation::FREE);
     free->set_fixed_size({ 83, 20 });
+    free->set_font_size(16);
     free->set_tooltip("The camera is rotated freely with the mouse.");
 
     Button* target = new Button(panel, "Target", FA_BULLSEYE);
     target->set_flags(Button::Flags::ToggleButton);
     target->set_pushed(light_field_renderer->navigation == LightFieldRenderer::Navigation::TARGET);
     target->set_fixed_size({ 83, 20 });
+    target->set_font_size(16);
     target->set_tooltip("The camera looks at the center of the scene and the mouse controls the camera position.");
 
-    Button* animate = new Button(panel, "Animate", FA_BULLSEYE);
+    Button* animate = new Button(panel, "Animate", FA_BEZIER_CURVE);
     animate->set_flags(Button::Flags::ToggleButton);
     animate->set_pushed(light_field_renderer->navigation == LightFieldRenderer::Navigation::ANIMATE);
     animate->set_fixed_size({ 83, 20 });
+    animate->set_font_size(16);
 
     free->set_change_callback
     (
@@ -199,10 +202,23 @@ Application::Application() :
 
     sliders.emplace_back(window, &cfg->speed, "Speed", "m/s", 2);
 
-    sliders.emplace_back(window, &cfg->animation_sway, "Sway", "", 1);
-    sliders.emplace_back(window, &cfg->animation_depth, "Depth", "", 1);
-    sliders.emplace_back(window, &cfg->animation_cycles, "Cycles", "", 0);
-    sliders.emplace_back(window, &cfg->animation_frames, "Frames", "", 0);
+    panel = new Widget(window);
+    panel->set_layout(new GridLayout(Orientation::Horizontal, 2, Alignment::Fill, 0, 5));
+
+    label = new Label(panel, " ", "sans-bold");
+    label->set_fixed_width(86);
+
+    PopupButton *popup_btn = new PopupButton(panel, "Animation Settings");
+    popup_btn->set_font_size(16);
+    popup_btn->set_fixed_size({ 270, 20 });
+    Popup *popup = popup_btn->popup();
+    popup->set_layout(new GroupLayout());
+
+    sliders.emplace_back(popup, &cfg->animation_sway, "Sway", "", 1);
+    sliders.emplace_back(popup, &cfg->animation_depth, "Depth", "", 1);
+    sliders.emplace_back(popup, &cfg->animation_cycles, "Cycles", "", 0);
+    sliders.emplace_back(popup, &cfg->animation_scale, "Scale", "", 1);
+    sliders.emplace_back(popup, &cfg->animation_duration, "Loop Duration", "s", 1);
 
     new Label(window, "Autofocus", "sans-bold", 20);
 

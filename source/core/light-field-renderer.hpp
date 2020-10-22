@@ -99,5 +99,4 @@ private:
     std::string savename = "";
 
     void animate();
-    int current_frame = 0;
 };

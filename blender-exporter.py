@@ -2,14 +2,26 @@ import bpy
 import os
 import copy
 
-extent_x = 500
-num_x = 27
-num_y = 27
+# Usage:
+#
+# 1. Set up your scene, camera and render settings in Blender as usual
+# 2. Open the Text Editor in Blender and open this file (blender-exporter.py)
+# 3. Change the following variables depending on the desired size of the light field:
+#
+extent_x = 500 # extent of camera plane in horizontal direction in millimeters
+num_x    = 27  # number of cameras in horizontal direction
+num_y    = 27  # number of cameras in vertical direction
+#
+# 4. Execute the script by clicking the run button
+#
+# This will freeze blender until all of the images have been rendered. Images are saved 
+# to the directory and in the format chosen in the output settings, and they are rendered 
+# using the chosen render settings and the camera settings of the active camera. 
+# The active camera is used as the center of the camera plane.
 
 baseline = extent_x / (num_x - 1) # millimeters
 
 scene = bpy.context.scene
-
 camera = scene.camera
 
 center_pos = copy.deepcopy(camera.location)

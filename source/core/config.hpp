@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <glm/glm.hpp>
+#include <map>
 
 class Config
 {
@@ -34,6 +35,7 @@ public:
         float getRange() { return range; }
         float getNormalized() { return (value - min) / range; }
         float getDisplay() { return value / scale; }
+        float getScale() { return scale; }
 
         bool valid() { return min <= value && max >= value; }
 
@@ -43,6 +45,10 @@ public:
     private:
         float value, min, max, range, scale;
     };
+
+    // This may be a really convoluted way of doing things
+    std::map<std::string, Property*> properties;
+    void registerProperty(const std::string &name, Property* prop_ptr, const Property &prop_val);
 
     Property focal_length;
     Property sensor_width;
@@ -68,7 +74,8 @@ public:
     Property animation_sway;
     Property animation_depth;
     Property animation_cycles;
-    Property animation_frames;
+    Property animation_scale;
+    Property animation_duration;
 
     Property autofocus_x;
     Property autofocus_y;
