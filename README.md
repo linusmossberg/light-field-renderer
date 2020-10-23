@@ -5,6 +5,7 @@ This is a light field renderer that can synthesize new camera views from a colle
   <img src="https://user-images.githubusercontent.com/15798094/97003452-ba6ea800-153b-11eb-9029-a829787de84d.gif" width="42%" title="Junk Shop"/>
   <img src="https://user-images.githubusercontent.com/15798094/97003481-c3f81000-153b-11eb-85db-162102cdd0e7.gif" width="28%" title="Glass Ball"/>
 </p>
+
 The renderer is mainly based on the paper [Dynamically Reparameterized Light Fields](https://dash.harvard.edu/handle/1/2634290), but additional features such as a dynamic synthetic aperture and phase detection autofocus has also been implemented.
 
 The program is written in C++ and uses OpenGL for hardware acceleration. The GUI is implemented using [NanoGUI](https://github.com/mitsuba-renderer/nanogui).
@@ -13,7 +14,7 @@ The program is written in C++ and uses OpenGL for hardware acceleration. The GUI
 This is a screenshot of the program:
 
 ![screen](https://user-images.githubusercontent.com/15798094/97001678-1126b280-1539-11eb-9e60-235d2a14abc4.png)
-Most of these settings are hopefully self-explanatory and some of them have explanatory tooltips. The `WASD` keys are used for movement, and mouse navigation can be performed by clicking and holding down a mouse button anywhere in the render window. The mouse is used to rotate the camera in *Free* mode and to move the camera laterally in *Target* mode.
+Most of these settings are hopefully self-explanatory and some of them have explanatory tooltips. The `WASD` keys are used for movement, and mouse navigation can be performed by clicking and holding down a mouse button anywhere in the render window. The mouse is used to rotate the camera in `Free` mode and to move the camera laterally in `Target` mode.
 
 `Shift + Mouse click` in the render window is used to autofocus at a point in the scene. The scroll whell is used to cycle through focus distances.
 ## Light Fields
