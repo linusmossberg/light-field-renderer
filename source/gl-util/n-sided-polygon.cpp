@@ -1,7 +1,7 @@
 #include "n-sided-polygon.hpp"
 
 #include <vector>
-#include <iostream>
+
 #include <glm/glm.hpp>
 
 #include <glad/glad.h>

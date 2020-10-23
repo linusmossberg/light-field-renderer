@@ -1,7 +1,7 @@
 #include "shader.hpp"
 
-#include <iostream>
 #include <exception>
+#include <stdexcept>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

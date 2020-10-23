@@ -2,10 +2,8 @@
 
 using namespace nanogui;
 
-#include <iostream>
-
 Application::PropertySlider::PropertySlider(Widget* window, Config::Property* p, const std::string &name, const std::string &unit, size_t precision)
-    : prop(p), last_normalized_value(p->getNormalized()), precision(precision)
+    : prop(p), last_value(*p), precision(precision)
 {
     Widget* panel = new Widget(window);
     panel->set_layout(new GridLayout(Orientation::Horizontal, 3, Alignment::Middle));
@@ -47,13 +45,13 @@ Application::PropertySlider::PropertySlider(Widget* window, Config::Property* p,
 
 void Application::PropertySlider::updateValue()
 {
-    float v = prop->getNormalized();
-    if (std::abs(v - last_normalized_value) > 1e-2f)
+    if (last_value != *prop)
     {
+        float v = prop->getNormalized();
         slider->set_value(v);
         std::stringstream ss;
         ss << std::fixed << std::setprecision(precision) << prop->getDisplay();
         text_box->set_value(ss.str());
-        last_normalized_value = v;
+        last_value = *prop;
     }
 }

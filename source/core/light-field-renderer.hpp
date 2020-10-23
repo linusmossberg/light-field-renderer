@@ -38,8 +38,6 @@ public:
     float image_distance;
 
     double last_time = std::numeric_limits<double>::max();
-    float last_contrast = 0.0f;
-    bool last_focus_direction = 0;
 
     enum Move
     {

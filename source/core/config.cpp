@@ -36,7 +36,7 @@ void Config::open(std::filesystem::path path)
 
                 if (!ss.eof() || ss.fail() || !p.valid())
                 {
-                    throw std::runtime_error("Invalid config file.");
+                    throw std::runtime_error("Invalid config file: " + name);
                 }
             };
 
@@ -78,7 +78,7 @@ void Config::defaults()
     registerProperty("animation-depth", &animation_depth, Property(2.0f, 0.1f, 10.0f));
     registerProperty("animation-cycles", &animation_cycles, Property(3.0f, 1.0f, 10.0f));
     registerProperty("animation-scale", &animation_scale, Property(1.0f, 0.1f, 2.0f));
-    registerProperty("animation-duration", &animation_duration, Property(6.0f, 1.0f, 12.0f));
+    registerProperty("animation-duration", &animation_duration, Property(4.0f, 1.0f, 12.0f));
 
     registerProperty("autofocus-x", &autofocus_x, Property(0.5f, 0.0f, 1.0f));
     registerProperty("autofocus-y", &autofocus_y, Property(0.5f, 0.0f, 1.0f));

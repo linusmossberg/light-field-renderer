@@ -10,7 +10,7 @@
 using namespace nanogui;
 
 Application::Application() : 
-    Screen(Vector2i(1280, 720), "Light Field Renderer", true, false, false, false, false, 3U, 3U), 
+    Screen(Vector2i(1500, 740), "Light Field Renderer", true, false, false, false, false, 3U, 3U), 
     cfg(std::make_shared<Config>())
 {
     inc_ref();
@@ -104,11 +104,11 @@ Application::Application() :
     );
 
     new Label(window, "Optics", "sans-bold", 20);
-    sliders.emplace_back(window, &cfg->focal_length, "Focal Length", "mm", 1);
-    sliders.emplace_back(window, &cfg->sensor_width, "Sensor Width", "mm", 1);
-    sliders.emplace_back(window, &cfg->focus_distance, "Focus Distance", "m", 1);
+    sliders.emplace_back(window, &cfg->focal_length, "Focal Length", "mm", 2);
+    sliders.emplace_back(window, &cfg->sensor_width, "Sensor Width", "mm", 2);
+    sliders.emplace_back(window, &cfg->focus_distance, "Focus Distance", "m", 2);
 
-    sliders.emplace_back(window, &cfg->f_stop, "F-Stop", "", 1);
+    sliders.emplace_back(window, &cfg->f_stop, "F-Stop", "", 2);
     sliders.emplace_back(window, &cfg->aperture_falloff, "Filter Falloff", "", 2);
 
     panel = new Widget(window);
@@ -214,11 +214,11 @@ Application::Application() :
     Popup *popup = popup_btn->popup();
     popup->set_layout(new GroupLayout());
 
-    sliders.emplace_back(popup, &cfg->animation_sway, "Sway", "", 1);
-    sliders.emplace_back(popup, &cfg->animation_depth, "Depth", "", 1);
+    sliders.emplace_back(popup, &cfg->animation_sway, "Sway", "", 2);
+    sliders.emplace_back(popup, &cfg->animation_depth, "Depth", "", 2);
     sliders.emplace_back(popup, &cfg->animation_cycles, "Cycles", "", 0);
-    sliders.emplace_back(popup, &cfg->animation_scale, "Scale", "", 1);
-    sliders.emplace_back(popup, &cfg->animation_duration, "Loop Duration", "s", 1);
+    sliders.emplace_back(popup, &cfg->animation_scale, "Scale", "", 2);
+    sliders.emplace_back(popup, &cfg->animation_duration, "Loop Duration", "s", 2);
 
     new Label(window, "Autofocus", "sans-bold", 20);
 

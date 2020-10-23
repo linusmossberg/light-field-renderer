@@ -46,7 +46,7 @@ public:
         float value, min, max, range, scale;
     };
 
-    // This may be a really convoluted way of doing things
+    // This may be a overly convoluted way of doing things
     std::map<std::string, Property*> properties;
     void registerProperty(const std::string &name, Property* prop_ptr, const Property &prop_val);
 

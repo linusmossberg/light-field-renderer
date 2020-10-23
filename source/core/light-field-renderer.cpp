@@ -122,7 +122,6 @@ void LightFieldRenderer::draw_contents()
 
 void LightFieldRenderer::move()
 {
-
     if (navigation == Navigation::ANIMATE)
     {
         animate();
@@ -179,6 +178,7 @@ void LightFieldRenderer::open()
 {
     try
     {
+        camera_array.reset();
         camera_array = std::make_unique<CameraArray>(cfg->folder);
 
         if (!camera_array->light_slab)
@@ -350,10 +350,10 @@ void LightFieldRenderer::saveRender()
 
 void LightFieldRenderer::animate()
 {
-    //savename = std::string("C:\\Users\\Laptop\\Documents\\2020-HT1\\TNM089\\light-field-renderer\\test\\") + std::to_string(current_frame) + ".tga";
-    //save_next = true;
-    //constexpr float num_frames = 60.0f;
     //static int current_frame = 0;
+    //savename = std::string("C:\\Users\\Me\\Documents\\TNM089\\light-field-renderer\\test\\") + std::to_string(current_frame) + ".tga";
+    //save_next = true;
+    //constexpr float num_frames = 30*4.0f;
     //float f = current_frame / num_frames;
     //current_frame = (current_frame + 1) % (int)num_frames;
 

@@ -50,7 +50,7 @@ void Application::PropertyBoxRow::updateValues()
 {
     for (size_t i = 0; i < properties.size(); i++)
     {
-        if (std::abs(*properties[i] - last_values[i]) > 1e-5f)
+        if (*properties[i] != last_values[i])
         {
             float_boxes[i]->set_value(properties[i]->getDisplay());
             last_values[i] = *properties[i];

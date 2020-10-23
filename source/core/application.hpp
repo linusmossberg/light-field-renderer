@@ -26,7 +26,7 @@ private:
         nanogui::TextBox* text_box;
         Config::Property* const prop;
 
-        float last_normalized_value;
+        float last_value;
         size_t precision;
         bool initiated = false;
 
