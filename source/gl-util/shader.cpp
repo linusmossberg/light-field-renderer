@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-MyShader::MyShader(const char* vert_source, const char* frag_source)
+Shader::Shader(const char* vert_source, const char* frag_source)
 {
     int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vert_source, NULL);
@@ -49,12 +49,12 @@ MyShader::MyShader(const char* vert_source, const char* frag_source)
     use();
 }
 
-MyShader::~MyShader()
+Shader::~Shader()
 {
     glDeleteProgram(handle);
 }
 
-int MyShader::getLocation(const char* name)
+int Shader::getLocation(const char* name)
 {
     GLint loc = glGetUniformLocation(handle, name);
 
@@ -63,7 +63,7 @@ int MyShader::getLocation(const char* name)
     return loc;
 }
 
-void MyShader::use()
+void Shader::use()
 {
     glUseProgram(handle);
 }

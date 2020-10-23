@@ -82,11 +82,11 @@ private:
 
     std::shared_ptr<Config> cfg;
     std::unique_ptr<CameraArray> camera_array;
-    std::unique_ptr<MyShader> shader;
-    std::unique_ptr<MyShader> disparity_shader;
-    MyShader draw_shader;
-    MyShader visualize_autofocus_shader;
-    MyShader template_match_shader;
+    std::unique_ptr<Shader> shader;
+    std::unique_ptr<Shader> disparity_shader;
+    Shader draw_shader;
+    Shader visualize_autofocus_shader;
+    Shader template_match_shader;
     Quad quad;
     NSidedPolygon aperture;
     std::unique_ptr<FBO> fbo0;

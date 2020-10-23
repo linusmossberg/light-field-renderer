@@ -16,7 +16,7 @@ This is a screenshot of the program:
 ![screen](https://user-images.githubusercontent.com/15798094/97001678-1126b280-1539-11eb-9e60-235d2a14abc4.png)
 Most of these settings are hopefully self-explanatory and some of them have explanatory tooltips. The `WASD` keys are used for movement, and mouse navigation can be performed by clicking and holding down a mouse button anywhere in the render window. The mouse is used to rotate the camera in `Free` mode and to move the camera laterally in `Target` mode.
 
-`Shift + Mouse click` in the render window is used to autofocus at a point in the scene. The scroll whell is used to cycle through focus distances.
+`Shift + Mouse click` in the render window is used to autofocus at a point in the scene. The scroll wheel is used to cycle through focus distances.
 ## Light Fields
 The included light field was rendered in [Blender](https://www.blender.org/) using the simple script [blender-exporter.py](blender-exporter.py). The scene was created by [Alex Treviño](http://www.aendom.com/) using concept by [Anaïs Maamar](https://www.artstation.com/chatonlaser).
 
