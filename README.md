@@ -10,7 +10,8 @@ The renderer is mainly based on the paper [Dynamically Reparameterized Light Fie
 The program is written in C++ and uses OpenGL for hardware acceleration. The GUI is implemented using [NanoGUI](https://github.com/mitsuba-renderer/nanogui).
 
 ## Usage
-The following image is a screenshot of the program:
+This is a screenshot of the program:
+
 ![screen](https://user-images.githubusercontent.com/15798094/97001678-1126b280-1539-11eb-9e60-235d2a14abc4.png)
 Most of these settings are hopefully self-explanatory and some of them have explanatory tooltips. The `WASD` keys are used for movement, and mouse navigation can be performed by clicking and holding down a mouse button anywhere in the render window. The mouse is used to rotate the camera in *Free* mode and to move the camera laterally in *Target* mode.
 

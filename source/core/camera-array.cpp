@@ -2,6 +2,8 @@
 
 #include <sstream>
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
 #include <glm/gtc/matrix_transform.hpp>
 
