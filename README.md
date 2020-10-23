@@ -1,14 +1,22 @@
 # Light Field Renderer
 This is a light field renderer that can synthesize new camera views from a collection of images. 
-
+<p float="center">
+  <img src="https://user-images.githubusercontent.com/15798094/97003465-c0648900-153b-11eb-8e38-35e2ec339db4.gif" width="28%" title="Lego Figures"/>
+  <img src="https://user-images.githubusercontent.com/15798094/97003452-ba6ea800-153b-11eb-9029-a829787de84d.gif" width="42%" title="Junk Shop"/>
+  <img src="https://user-images.githubusercontent.com/15798094/97003481-c3f81000-153b-11eb-85db-162102cdd0e7.gif" width="28%" title="Glass Ball"/>
+</p>
 The renderer is mainly based on the paper [Dynamically Reparameterized Light Fields](https://dash.harvard.edu/handle/1/2634290), but additional features such as a dynamic synthetic aperture and phase detection autofocus has also been implemented.
 
 The program is written in C++ and uses OpenGL for hardware acceleration. The GUI is implemented using [NanoGUI](https://github.com/mitsuba-renderer/nanogui).
 
 ## Usage
+The following image is a screenshot of the program:
+![screen](https://user-images.githubusercontent.com/15798094/97001678-1126b280-1539-11eb-9e60-235d2a14abc4.png)
+Most of these settings are hopefully self-explanatory and some of them have explanatory tooltips. The `WASD` keys are used for movement, and mouse navigation can be performed by clicking and holding down a mouse button anywhere in the render window. The mouse is used to rotate the camera in *Free* mode and to move the camera laterally in *Target* mode.
 
+`Shift + Mouse click` in the render window is used to autofocus at a point in the scene. The scroll whell is used to cycle through focus distances.
 ## Light Fields
-The included light field was rendered in [Blender](https://www.blender.org/) using a simple script, [blender-exporter.py](blender-exporter.py). The scene was created by [Alex Treviño](http://www.aendom.com/) using concept by [Anaïs Maamar](https://www.artstation.com/chatonlaser). The scene can be downloaded here: https://cloud.blender.org/p/gallery/5dd6d7044441651fa3decb56
+The included light field was rendered in [Blender](https://www.blender.org/) using the simple script [blender-exporter.py](blender-exporter.py). The scene was created by [Alex Treviño](http://www.aendom.com/) using concept by [Anaïs Maamar](https://www.artstation.com/chatonlaser).
 
 The renderer is also capable of rendering rectified light fields from the Stanford Lego Gantry, which can be downloaded here: http://lightfield.stanford.edu/lfs.html.
 
