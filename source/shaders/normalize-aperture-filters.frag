@@ -1,6 +1,6 @@
 #pragma once
 
-inline constexpr char *normalize_aperture_filters_frag = R"glsl(
+inline constexpr char normalize_aperture_filters_frag[] = R"glsl(
 #version 330 core
 #line 5
 

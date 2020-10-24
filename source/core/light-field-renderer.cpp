@@ -357,11 +357,11 @@ void LightFieldRenderer::animate()
     //float f = current_frame / num_frames;
     //current_frame = (current_frame + 1) % (int)num_frames;
 
-    float f = glfwGetTime() * 1.0f / cfg->animation_duration;
+    float f = (float)glfwGetTime() / cfg->animation_duration;
 
     float theta = glm::radians(f * 360.0f);
     float phi = glm::radians(f * std::round(cfg->animation_cycles) * 360.0f);
-    glm::vec3 r = glm::vec3(camera_array->uv_size, 0.0f) / 2.0f;
+    glm::vec3 r = glm::vec3(camera_array->xy_size, 0.0f) / 2.0f;
     r.z = std::max(r.x, r.y) * cfg->animation_depth;
 
     r *= (float)cfg->animation_scale;

@@ -145,8 +145,8 @@ void LightFieldRenderer::phaseDetectAutofocus()
     glm::vec3 f1 = pixelToFocalPlane(glm::vec2(af_pos) + pixel_phase_difference);
 
     // Camera positions
-    glm::vec3 c0 = glm::vec3(camera_array->cameras[cameras.x].uv, 0.0f);
-    glm::vec3 c1 = glm::vec3(camera_array->cameras[cameras.y].uv, 0.0f);
+    glm::vec3 c0 = glm::vec3(camera_array->cameras[cameras.x].xy, 0.0f);
+    glm::vec3 c1 = glm::vec3(camera_array->cameras[cameras.y].xy, 0.0f);
 
     // Directions from cameras to points on focal plane
     glm::vec3 d0 = glm::normalize(f0 - c0);

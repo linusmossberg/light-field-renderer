@@ -16,9 +16,8 @@ public:
     struct Camera
     {
         glm::ivec2 size;
-        glm::vec2 uv;
+        glm::vec2 xy;
         int pixel_format;
-        std::string path;
         unsigned int texture;
 
         float focal_length;
@@ -28,9 +27,9 @@ public:
 
     bool light_slab;
 
-    int findClosestCamera(const glm::vec2 &uv, int exclude_idx = -1);
+    int findClosestCamera(const glm::vec2 &xy, int exclude_idx = -1);
 
-    glm::vec2 uv_size;
+    glm::vec2 xy_size;
 
     std::vector<Camera> cameras;
 };

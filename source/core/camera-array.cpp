@@ -24,8 +24,8 @@ CameraArray::CameraArray(const std::filesystem::path& path)
         "JPEG", "JPG", "PNG", "TGA", "BMP", "PSD", "GIF", "HDR", "PIC", "PNM"
     };
 
-    glm::vec2 max_uv(std::numeric_limits<float>::lowest());
-    glm::vec2 min_uv(std::numeric_limits<float>::max());
+    glm::vec2 max_xy(std::numeric_limits<float>::lowest());
+    glm::vec2 min_xy(std::numeric_limits<float>::max());
 
     light_slab = true;
 
@@ -66,7 +66,7 @@ CameraArray::CameraArray(const std::filesystem::path& path)
             if(!p.empty()) properties.push_back(p);
         }
 
-        // name_i_j_-v_u, with extension _focal-length_sensor-width
+        // name_i_j_-y_x, with extension _focal-length_sensor-width
 
         if (properties.size() != 5 && properties.size() != 7) continue;
 
@@ -76,8 +76,8 @@ CameraArray::CameraArray(const std::filesystem::path& path)
             if (properties.size() == 7 &&  light_slab) continue;
         }
             
-        float v = -std::stof(properties[3]) * 1e-3f;
-        float u =  std::stof(properties[4]) * 1e-3f;
+        float y = -std::stof(properties[3]) * 1e-3f;
+        float x =  std::stof(properties[4]) * 1e-3f;
 
         float focal_length = -1.0f, sensor_width = -1.0f;
         if (properties.size() == 7)
@@ -88,13 +88,13 @@ CameraArray::CameraArray(const std::filesystem::path& path)
             light_slab = false;
         }
 
-        int width, height, channels;
-        stbi_info(file.path().string().c_str(), &width, &height, &channels);
+        std::cout << "\r" << std::string(96, ' ');
+        std::cout << "\rLoading " << file.path().filename();
 
-        if (!stbi_info(file.path().string().c_str(), &width, &height, &channels))
-        {
-            continue;
-        }
+        int width, height, channels;
+        uint8_t* image_data = stbi_load(file.path().string().c_str(), &width, &height, &channels, 0);
+
+        if (!image_data) continue;
 
         int pixel_format;
         switch (channels)
@@ -103,68 +103,56 @@ CameraArray::CameraArray(const std::filesystem::path& path)
         case 2: pixel_format = GL_RG; break;
         case 3: pixel_format = GL_RGB; break;
         case 4: pixel_format = GL_RGBA; break;
-        default: continue;
+        default: stbi_image_free(image_data); continue;
         }
 
         // Image is valid
         Camera dc;
 
         dc.size = { width, height };
-        dc.uv = { u, v };
+        dc.xy = { x, y };
         dc.pixel_format = pixel_format;
         dc.focal_length = focal_length;
         dc.sensor_width = sensor_width;
-        dc.path = file.path().string();
+
+        glGenTextures(1, &dc.texture);
+        glBindTexture(GL_TEXTURE_2D, dc.texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, pixel_format, width, height, 0, pixel_format, GL_UNSIGNED_BYTE, image_data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        stbi_image_free(image_data);
 
         cameras.push_back(dc);
 
-        if (u > max_uv[0]) max_uv[0] = u;
-        if (v > max_uv[1]) max_uv[1] = v;
-        if (u < min_uv[0]) min_uv[0] = u;
-        if (v < min_uv[1]) min_uv[1] = v;
+        if (x > max_xy[0]) max_xy[0] = x;
+        if (y > max_xy[1]) max_xy[1] = y;
+        if (x < min_xy[0]) min_xy[0] = x;
+        if (y < min_xy[1]) min_xy[1] = y;
     }
+
+    std::cout << std::endl;
 
     if (!cameras.empty())
     {
-        const Camera& dc = cameras.back();
-
-        uv_size = max_uv - min_uv;
+        xy_size = max_xy - min_xy;
 
         for (size_t i = 0; i < cameras.size(); i++)
         {
             auto& c = cameras[i];
 
-            std::cout << "\r" << std::string(64, ' ');
-            std::cout << "\rLoading " << std::filesystem::path(c.path).filename();
-
-            int width, height, channels;
-            uint8_t* image_data = stbi_load(c.path.c_str(), &width, &height, &channels, 0);
-
-            if (!image_data)
-            {
-                throw std::runtime_error(std::string("Something went wrong reading: ") + c.path);
-            }
-
-            glGenTextures(1, &c.texture);
-            glBindTexture(GL_TEXTURE_2D, c.texture);
-            glTexImage2D(GL_TEXTURE_2D, 0, c.pixel_format, width, height, 0, c.pixel_format, GL_UNSIGNED_BYTE, image_data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-
-            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-            stbi_image_free(image_data);
-
-            c.uv -= min_uv;
-            c.uv -= uv_size / 2.0f;
+            c.xy -= min_xy;
+            c.xy -= xy_size / 2.0f;
 
             if (!light_slab)
             {
                 auto view = glm::lookAt(
-                    glm::vec3(c.uv.x, c.uv.y, 0),
-                    glm::vec3(c.uv.x, c.uv.y, -1),
+                    glm::vec3(c.xy.x, c.xy.y, 0),
+                    glm::vec3(c.xy.x, c.xy.y, -1),
                     glm::vec3(0, 1, 0)
                 );
 
@@ -173,7 +161,6 @@ CameraArray::CameraArray(const std::filesystem::path& path)
                 c.VP = projection * view;
             }
         }
-        std::cout << "\r" << std::string(64, ' ');
     }
     else
     {
@@ -193,7 +180,7 @@ void CameraArray::bind(size_t index, int eye_loc, int VP_loc)
 {
     const auto& c = cameras.at(index);
     glBindTexture(GL_TEXTURE_2D, c.texture);
-    glUniform2fv(eye_loc, 1, &c.uv[0]);
+    glUniform2fv(eye_loc, 1, &c.xy[0]);
 
     if (!light_slab)
     {
@@ -201,7 +188,7 @@ void CameraArray::bind(size_t index, int eye_loc, int VP_loc)
     }
 }
 
-int CameraArray::findClosestCamera(const glm::vec2 &uv, int exclude_idx)
+int CameraArray::findClosestCamera(const glm::vec2 &xy, int exclude_idx)
 {
     int idx = 0;
     float min_dist = std::numeric_limits<float>::max();
@@ -209,7 +196,7 @@ int CameraArray::findClosestCamera(const glm::vec2 &uv, int exclude_idx)
     for (int i = 0; i < cameras.size(); i++)
     {
         if (i == exclude_idx) continue;
-        float dist = glm::distance(cameras[i].uv, uv);
+        float dist = glm::distance(cameras[i].xy, xy);
         if (dist < min_dist)
         {
             idx = i;

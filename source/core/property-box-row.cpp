@@ -14,13 +14,13 @@ Application::PropertyBoxRow::PropertyBoxRow(
     if (!name.empty())
     {
         panel = new Widget(window);
-        panel->set_layout(new GridLayout(Orientation::Horizontal, 1 + properties.size(), Alignment::Fill));
+        panel->set_layout(new GridLayout(Orientation::Horizontal, 1 + (int)properties.size(), Alignment::Fill));
         Label* label = new Label(panel, name, "sans-bold");
         label->set_fixed_width(86);
         label->set_tooltip(tooltip);
     }
 
-    int width = total_width / properties.size();
+    int width = (int)(total_width / properties.size());
 
     for (size_t i = 0; i < properties.size(); i++)
     {

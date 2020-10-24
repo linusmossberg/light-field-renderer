@@ -8,7 +8,7 @@ import copy
 # 2. Open the Text Editor in Blender and open this file (blender-exporter.py)
 # 3. Change the following variables depending on the desired size of the light field:
 #
-extent_x = 500 # extent of camera plane in horizontal direction in millimeters
+extent_x = 800 # extent of camera plane in horizontal direction in millimeters
 num_x    = 27  # number of cameras in horizontal direction
 num_y    = 27  # number of cameras in vertical direction
 #
@@ -33,11 +33,11 @@ directory = os.path.dirname(render_filepath)
 
 for j in range(num_y):
     for i in range(num_x):
-        u = ((num_x - i) - (num_x + 1) / 2) * baseline;
-        v = (j - (num_y - 1) / 2) * baseline;
-        camera.location = center_pos + right * u * 1e-3 + up * v * 1e-3;
+        x = ((num_x - i) - (num_x + 1) / 2) * baseline;
+        y = (j - (num_y - 1) / 2) * baseline;
+        camera.location = center_pos + right * x * 1e-3 + up * y * 1e-3;
         
-        name = "%s_%02d_%02d_%f_%f_%d_%d" % (camera.name, j, i, -v, u, camera.data.lens, camera.data.sensor_width)
+        name = "%s_%02d_%02d_%f_%f_%d_%d" % (camera.name, j, i, -y, x, camera.data.lens, camera.data.sensor_width)
         scene.render.filepath = os.path.join(directory, name)
         
         scene.cycles.seed = i * num_x + j;

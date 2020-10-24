@@ -5,7 +5,7 @@ Sum of squared differences between the search image (red channel) and template
 image (green channel) over all template pixels, when the template image is 
 placed with its lower left corner over the current search image texel.
 *************************************************************************/
-inline constexpr char *template_match_frag = R"glsl(
+inline constexpr char template_match_frag[] = R"glsl(
 #version 330 core
 #line 10
 

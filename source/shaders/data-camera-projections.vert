@@ -1,6 +1,6 @@
 #pragma once
 
-inline constexpr char *perspective_projection = R"(
+inline constexpr char perspective_projection[] = R"(
 uniform mat4 data_VP;
 
 vec2 projectToDataCamera(vec3 point)
@@ -9,7 +9,7 @@ vec2 projectToDataCamera(vec3 point)
     return (clip_space.xy / clip_space.w + 1.0) * 0.5;
 })";
 
-inline constexpr char *light_slab_projection = R"(
+inline constexpr char light_slab_projection[] = R"(
 uniform vec2 st_size;
 uniform float st_distance; // uv |<--st_distance-->| st
 

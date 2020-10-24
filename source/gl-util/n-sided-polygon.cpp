@@ -3,11 +3,10 @@
 #include <vector>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-constexpr float PI = 3.14159265358979323846f;
 
 NSidedPolygon::NSidedPolygon(int N)
 {
@@ -19,7 +18,7 @@ NSidedPolygon::NSidedPolygon(int N)
 
     for (int i = 1; i < N; i++)
     {
-        float theta = i * 2.0f * PI / N;
+        float theta = i * glm::two_pi<float>() / N;
         float x = 0.5f * std::cos(theta);
         float y = 0.5f * std::sin(theta);
 

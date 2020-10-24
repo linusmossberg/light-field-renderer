@@ -1,6 +1,6 @@
 #pragma once
 
-inline constexpr char *screen_vert = R"glsl(
+inline constexpr char screen_vert[] = R"glsl(
 #version 330 core
 #line 5
 

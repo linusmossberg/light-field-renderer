@@ -1,6 +1,6 @@
 #pragma once
 
-inline constexpr char *disparity_vert = R"(
+inline constexpr char disparity_vert[] = R"(
 #version 330 core
 #line 5
 

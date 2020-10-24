@@ -1,28 +1,29 @@
 # Light Field Renderer
-This is a light field renderer that can synthesize new camera views from a collection of images. 
-<p float="center">
-  <img src="https://user-images.githubusercontent.com/15798094/97003465-c0648900-153b-11eb-8e38-35e2ec339db4.gif" width="28%" title="Lego Figures"/>
-  <img src="https://user-images.githubusercontent.com/15798094/97003452-ba6ea800-153b-11eb-9029-a829787de84d.gif" width="42%" title="Junk Shop"/>
-  <img src="https://user-images.githubusercontent.com/15798094/97003481-c3f81000-153b-11eb-85db-162102cdd0e7.gif" width="28%" title="Glass Ball"/>
-</p>
+
+This is a light field renderer that can synthesize new camera views from a collection of images.
+
+<img src="https://user-images.githubusercontent.com/15798094/97071180-e131ea80-15de-11eb-8dff-7a9d70629ec8.gif" width="100%"/>
 
 The renderer is mainly based on the paper [Dynamically Reparameterized Light Fields](https://dash.harvard.edu/handle/1/2634290), but additional features such as a dynamic synthetic aperture and phase detection autofocus has also been implemented.
 
 The program is written in C++ and uses OpenGL for hardware acceleration. The GUI is implemented using [NanoGUI](https://github.com/mitsuba-renderer/nanogui).
 
 ## Usage
-This is a screenshot of the program:
 
 ![screen](https://user-images.githubusercontent.com/15798094/97001678-1126b280-1539-11eb-9e60-235d2a14abc4.png)
-Most of these settings are hopefully self-explanatory and some of them have explanatory tooltips. The `WASD` keys are used for movement, and mouse navigation can be performed by clicking and holding down a mouse button anywhere in the render window. The mouse is used to rotate the camera in `Free` mode and to move the camera laterally in `Target` mode.
+
+The image above is a screenshot of the program. Most of the settings are hopefully self-explanatory and some of them have explanatory tooltips. The `WASD` keys are used for movement, and mouse navigation can be performed by clicking and holding down a mouse button anywhere in the render window. The mouse is used to rotate the camera in `Free` mode and to move the camera laterally in `Target` mode.
 
 `Shift + Mouse click` in the render window is used to autofocus at a point in the scene. The scroll wheel is used to cycle through focus distances.
+
 ## Light Fields
+
 The included light field was rendered in [Blender](https://www.blender.org/) using the simple script [blender-exporter.py](blender-exporter.py). The scene was created by [Alex Treviño](http://www.aendom.com/) using concept by [Anaïs Maamar](https://www.artstation.com/chatonlaser).
 
 The renderer is also capable of rendering rectified light fields from the Stanford Lego Gantry, which can be downloaded here: http://lightfield.stanford.edu/lfs.html.
 
 ### Config
+
 The start values and ranges of sliders and such in the GUI can be modified by adding a `config.cfg` file to the light field folder that specifies the start, min and max value for different properties: 
 ```
 # [property name] [start value] [min value] [max value]
@@ -33,6 +34,7 @@ f-stop 1.8 0.1 5.6
 Unspecified properties uses the default values. All property names are available in [config.cpp](source/core/config.cpp#L59).
 
 ## Building
+
 The program uses [CMake](https://cmake.org/) and it can be cloned and built using:
 <pre><code>git clone <b>--recursive</b> https://github.com/linusmossberg/light-field-renderer
 cd light-field-renderer

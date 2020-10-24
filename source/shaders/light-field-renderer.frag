@@ -1,6 +1,6 @@
 #pragma once
 
-inline constexpr char *light_field_renderer_frag = R"(
+inline constexpr char light_field_renderer_frag[] = R"(
 #version 330 core
 #line 5
 
