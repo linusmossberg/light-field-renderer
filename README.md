@@ -2,7 +2,7 @@
 
 This is a light field renderer that can synthesize new camera views from a collection of images.
 
-<img src="https://user-images.githubusercontent.com/15798094/97071180-e131ea80-15de-11eb-8dff-7a9d70629ec8.gif" width="100%"/>
+<img src="https://user-images.githubusercontent.com/15798094/97102178-bb224e00-16a3-11eb-827a-88afd72a8f8d.gif" width="100%"/>
 
 The renderer is mainly based on the paper [Dynamically Reparameterized Light Fields](https://dash.harvard.edu/handle/1/2634290), but additional features such as a dynamic synthetic aperture and phase detection autofocus has also been implemented.
 
@@ -10,7 +10,7 @@ The program is written in C++ and uses OpenGL for hardware acceleration. The GUI
 
 ## Usage
 
-![screen](https://user-images.githubusercontent.com/15798094/97001678-1126b280-1539-11eb-9e60-235d2a14abc4.png)
+![Screenshot](https://user-images.githubusercontent.com/15798094/97102166-a1810680-16a3-11eb-80cb-ac4b0bc8e979.png)
 
 The image above is a screenshot of the program. Most of the settings are hopefully self-explanatory and some of them have explanatory tooltips. The `WASD` keys are used for movement, and mouse navigation can be performed by clicking and holding down a mouse button anywhere in the render window. The mouse is used to rotate the camera in `Free` mode and to move the camera laterally in `Target` mode.
 
