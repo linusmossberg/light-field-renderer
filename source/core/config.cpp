@@ -88,6 +88,7 @@ void Config::defaults()
 
     registerProperty("width", &width, Property(512.0f, 256.0f, 16384.0f));
     registerProperty("height", &height, Property(512.0f, 256.0f, 16384.0f));
+    registerProperty("exposure", &exposure, Property(0.0f, -1.0f, 1.0f));
 
     registerProperty("pitch", &pitch, Property(0.0f, -89.9f, 89.9f, glm::radians(1.0f)));
     registerProperty("yaw", &yaw, Property(0.0f, -89.9f, 89.9f, glm::radians(1.0f)));

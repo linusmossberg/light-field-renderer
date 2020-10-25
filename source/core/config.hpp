@@ -85,6 +85,7 @@ public:
 
     Property width;
     Property height;
+    Property exposure;
 
     std::string folder;
 };

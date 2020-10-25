@@ -8,7 +8,7 @@
 #include "light-field-renderer.hpp"
 
 Application::Application() : 
-    Screen(nanogui::Vector2i(1500, 740), "Light Field Renderer", true, false, false, false, false, 3U, 3U), 
+    Screen(nanogui::Vector2i(1480, 750), "Light Field Renderer", true, false, false, false, false, 3U, 3U), 
     cfg(std::make_shared<Config>())
 {
     inc_ref();
@@ -24,7 +24,7 @@ Application::Application() :
     nanogui::Label* label;
 
     window = new nanogui::Window(this, "Render");
-    window->set_position(nanogui::Vector2i(460, 20));
+    window->set_position(nanogui::Vector2i(420, 10));
     window->set_layout(new nanogui::GroupLayout());
     window->set_theme(theme);
 
@@ -41,7 +41,7 @@ Application::Application() :
     });
 
     window = new nanogui::Window(this, "Menu");
-    window->set_position({ 20, 20 });
+    window->set_position({ 10, 10 });
     window->set_layout(new nanogui::GroupLayout(15, 6, 15, 0));
     window->set_theme(theme);
 
@@ -93,6 +93,7 @@ Application::Application() :
     float_box_rows.push_back(PropertyBoxRow(panel, { &cfg->width, &cfg->height }, "", "px", 0, 1.0f, "", 180));
 
     b = new nanogui::Button(panel, "Set");
+    b->set_font_size(16);
     b->set_fixed_size({ 90, 20 });
     b->set_callback([this, window]
         { 
@@ -100,6 +101,8 @@ Application::Application() :
             perform_layout();
         }
     );
+
+    sliders.emplace_back(window, &cfg->exposure, "Exposure", "EV", 1);
 
     new nanogui::Label(window, "Optics", "sans-bold", 20);
     sliders.emplace_back(window, &cfg->focal_length, "Focal Length", "mm", 2);

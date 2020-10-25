@@ -74,7 +74,7 @@ public:
 
 private:
     // The following functions are implemented in phase-detect-autofocus.cpp
-    void phaseDetectAutofocus();
+    void phaseDetectionAutofocus();
     glm::vec3 pixelDirection(const glm::vec2 &px);
     glm::vec3 pixelToFocalPlane(const glm::vec2 &px);
     glm::vec2 pixelToCameraPlane(const glm::vec2 &px);

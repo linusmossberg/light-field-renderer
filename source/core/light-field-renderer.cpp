@@ -45,7 +45,7 @@ void LightFieldRenderer::draw_contents()
 
     if (continuous_autofocus || autofocus_click || visualize_autofocus)
     {
-        phaseDetectAutofocus();
+        phaseDetectionAutofocus();
         autofocus_click = false;
     }
 
@@ -111,6 +111,7 @@ void LightFieldRenderer::draw_contents()
     quad.bind();
 
     glUniform1f(draw_shader.getLocation("max_weight_sum"), max_weight_sum);
+    glUniform1f(draw_shader.getLocation("exposure"), std::pow(2, cfg->exposure));
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);

@@ -14,6 +14,8 @@ edges (where filter weight sum is < 1) or not.
 ****************************************************************************************/
 uniform float max_weight_sum;
 
+uniform float exposure;
+
 in vec2 interpolated_texcoord;
 
 out vec4 color;
@@ -30,5 +32,5 @@ vec3 gammaCompress(vec3 c)
 void main()
 {
     vec4 c = texture(accumulation_texture, interpolated_texcoord);
-    color.xyz = gammaCompress(c.xyz / max(max_weight_sum, c.w));
+    color.xyz = gammaCompress(exposure * c.xyz / max(max_weight_sum, c.w));
 })glsl";

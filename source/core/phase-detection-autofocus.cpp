@@ -15,7 +15,7 @@
 
 glm::vec3 closestPointBetweenRays(const glm::vec3 &p0, const glm::vec3 &d0, const glm::vec3 &p1, const glm::vec3 &d1);
 
-void LightFieldRenderer::phaseDetectAutofocus()
+void LightFieldRenderer::phaseDetectionAutofocus()
 {
     const glm::ivec2 template_size((int)std::round(cfg->template_size));
     const glm::ivec2 search_size((int)std::round(cfg->template_size * cfg->search_scale));
