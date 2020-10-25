@@ -121,6 +121,7 @@ Application::Application() :
     nanogui::Button* normalize = new nanogui::Button(panel, "Normalize Aperture");
     normalize->set_fixed_size({ 125, 20 });
     normalize->set_font_size(14);
+    normalize->set_tooltip("Normalize aperture filter weights per pixel. Disabling this results in vignetting.");
     normalize->set_flags(nanogui::Button::Flags::ToggleButton);
     normalize->set_pushed(light_field_renderer->normalize_aperture);
     normalize->set_change_callback([this](bool state)
@@ -131,6 +132,7 @@ Application::Application() :
     nanogui::Button* breathing = new nanogui::Button(panel, "Focus Breathing");
     breathing->set_fixed_size({ 125, 20 });
     breathing->set_font_size(14);
+    breathing->set_tooltip("Factor in the focus distance to the image distance according to the thin-lens equation.");
     breathing->set_flags(nanogui::Button::Flags::ToggleButton);
     breathing->set_pushed(light_field_renderer->focus_breathing);
     breathing->set_change_callback([this](bool state)
@@ -158,7 +160,7 @@ Application::Application() :
     target->set_pushed(light_field_renderer->navigation == LightFieldRenderer::Navigation::TARGET);
     target->set_fixed_size({ 83, 20 });
     target->set_font_size(16);
-    target->set_tooltip("The camera looks at the center of the scene and the mouse controls the camera position.");
+    target->set_tooltip("The camera looks at the target coordinate and the mouse controls the camera position.");
 
     nanogui::Button* animate = new nanogui::Button(panel, "Animate", FA_BEZIER_CURVE);
     animate->set_flags(nanogui::Button::Flags::ToggleButton);
@@ -232,6 +234,7 @@ Application::Application() :
     nanogui::Button* focus_af = new nanogui::Button(panel, "Focus");
     focus_af->set_fixed_size({ 83, 20 });
     focus_af->set_font_size(14);
+    focus_af->set_tooltip("Can also be initiated by using shift+click in the render view");
     focus_af->set_callback([this]()
     {
         light_field_renderer->autofocus_click = true;
@@ -259,16 +262,19 @@ Application::Application() :
 
     float_box_rows.push_back(PropertyBoxRow(
         window, { &cfg->autofocus_x, &cfg->autofocus_y }, "Screen Point", "", 2, 0.01f, 
-        "Can be set using shift+click in the render view")
+        "Can also be set using shift+click in the render view")
     );
     float_box_rows.push_back(PropertyBoxRow(
-        window, { &cfg->template_size }, "Template Size", "px", 0, 2.0f)
+        window, { &cfg->template_size }, "Template Size", "px", 0, 2.0f, 
+        "Size of the focus region.")
     );
     float_box_rows.push_back(PropertyBoxRow(
-        window, { &cfg->search_scale }, "Search Scale", "", 1, 0.1f)
+        window, { &cfg->search_scale }, "Search Scale", "", 1, 0.1f, 
+        "Scale of search region relative to the focus region")
     );
 
-    new nanogui::Label(window, "Light Slab", "sans-bold", 20);
+    label = new nanogui::Label(window, "Light Slab", "sans-bold", 20);
+    label->set_tooltip("Scale of rectified light fields. Has no effect on unrectified light fields.");
     sliders.emplace_back(window, &cfg->st_width, "ST Width", "m", 1);
     sliders.emplace_back(window, &cfg->st_distance, "ST Distance", "m", 1);
 
