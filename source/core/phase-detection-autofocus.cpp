@@ -11,8 +11,6 @@
 #include "../gl-util/fbo.hpp"
 #include "util.hpp"
 
-#include <iostream>
-
 glm::vec3 closestPointBetweenRays(const glm::vec3 &p0, const glm::vec3 &d0, const glm::vec3 &p1, const glm::vec3 &d1);
 
 void LightFieldRenderer::phaseDetectionAutofocus()
@@ -65,20 +63,14 @@ void LightFieldRenderer::phaseDetectionAutofocus()
     glUniform3fv(disparity_shader->getLocation("right"), 1, &right[0]);
     glUniform3fv(disparity_shader->getLocation("up"), 1, &up[0]);
 
+    int data_eye_loc = disparity_shader->getLocation("data_eye");
+    int data_VP_loc = disparity_shader->getLocation("data_VP");
+    int st_size_loc = disparity_shader->getLocation("st_size");
+    int st_distance_loc = disparity_shader->getLocation("st_distance");
+
     for (int i = 0; i < 2; i++)
     {
-        if (!camera_array->light_slab)
-        {
-            camera_array->bind(cameras[i], disparity_shader->getLocation("data_eye"), disparity_shader->getLocation("data_VP"));
-        }
-        else
-        {
-            camera_array->bind(cameras[i], disparity_shader->getLocation("data_eye"));
-            glm::vec2 st_size(camera_array->cameras[i].size);
-            st_size = (st_size / st_size.x) * (float)cfg->st_width;
-            glUniform2fv(disparity_shader->getLocation("st_size"), 1, &st_size[0]);
-            glUniform1f(disparity_shader->getLocation("st_distance"), cfg->st_distance);
-        }
+        camera_array->bind(i, data_eye_loc, data_VP_loc, st_size_loc, st_distance_loc, cfg->st_width, cfg->st_distance);
         glUniform1i(disparity_shader->getLocation("channel"), i);
         quad.draw();
     }
@@ -155,8 +147,7 @@ void LightFieldRenderer::phaseDetectionAutofocus()
     // Point on new focal plane
     glm::vec3 nf = closestPointBetweenRays(c0, d0, c1, d1);
 
-    // dot(nf-eye, forward) = |nf-eye|*cos(theta)
-    cfg->focus_distance = dot(nf - eye, forward);
+    cfg->focus_distance = glm::dot(nf - eye, forward);
 }
 
 glm::vec3 LightFieldRenderer::pixelDirection(const glm::vec2 &px)
@@ -181,7 +172,7 @@ glm::vec2 LightFieldRenderer::pixelToCameraPlane(const glm::vec2 &px)
 
 // ray0(s) = p0 + d0 * s
 // ray1(t) = p1 + d1 * t
-// http://wiki.unity3d.com/index.php/3d_Math_functions?_ga=2.21692155.1539381585.1601871902-499235835.1601871902
+// http://wiki.unity3d.com/index.php/3d_Math_functions
 glm::vec3 closestPointBetweenRays(const glm::vec3 &p0, const glm::vec3 &d0, const glm::vec3 &p1, const glm::vec3 &d1)
 {
     float a = glm::dot(d0, d0);

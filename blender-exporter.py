@@ -37,7 +37,7 @@ for j in range(num_y):
         y = (j - (num_y - 1) / 2) * baseline;
         camera.location = center_pos + right * x * 1e-3 + up * y * 1e-3;
         
-        name = "%s_%02d_%02d_%f_%f_%d_%d" % (camera.name, j, i, -y, x, camera.data.lens, camera.data.sensor_width)
+        name = "%s_%02d_%02d_%f_%f_%f_%f" % (camera.name, j, i, -y, x, camera.data.lens, camera.data.sensor_width)
         scene.render.filepath = os.path.join(directory, name)
         
         scene.cycles.seed = i * num_x + j;

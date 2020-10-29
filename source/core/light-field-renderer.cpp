@@ -85,20 +85,14 @@ void LightFieldRenderer::draw_contents()
     glUniform3fv(shader->getLocation("up"), 1, &up[0]);
     glUniform1f(shader->getLocation("aperture_falloff"), cfg->aperture_falloff);
 
+    int data_eye_loc = shader->getLocation("data_eye");
+    int data_VP_loc = shader->getLocation("data_VP");
+    int st_size_loc = shader->getLocation("st_size");
+    int st_distance_loc = shader->getLocation("st_distance");
+
     for (int i = 0; i < camera_array->cameras.size(); i++)
     {
-        if (!camera_array->light_slab)
-        {
-            camera_array->bind(i, shader->getLocation("data_eye"), shader->getLocation("data_VP"));
-        }
-        else
-        {
-            camera_array->bind(i, shader->getLocation("data_eye"));
-            glm::vec2 st_size(camera_array->cameras[i].size);
-            st_size = (st_size / st_size.x) * (float)cfg->st_width;
-            glUniform2fv(shader->getLocation("st_size"), 1, &st_size[0]);
-            glUniform1f(shader->getLocation("st_distance"), cfg->st_distance);
-        }
+        camera_array->bind(i, data_eye_loc, data_VP_loc, st_size_loc, st_distance_loc, cfg->st_width, cfg->st_distance);
         aperture.draw();
     }
 

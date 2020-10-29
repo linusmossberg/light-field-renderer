@@ -176,13 +176,20 @@ CameraArray::~CameraArray()
     }
 }
 
-void CameraArray::bind(size_t index, int eye_loc, int VP_loc)
+void CameraArray::bind(size_t index, int eye_loc, int VP_loc, int st_size_loc, int st_distance_loc, float st_width, float st_distance)
 {
     const auto& c = cameras.at(index);
     glBindTexture(GL_TEXTURE_2D, c.texture);
     glUniform2fv(eye_loc, 1, &c.xy[0]);
 
-    if (!light_slab)
+    if (light_slab)
+    {
+        glm::vec2 st_size(c.size);
+        st_size = (st_size / st_size.x) * st_width;
+        glUniform2fv(st_size_loc, 1, &st_size[0]);
+        glUniform1f(st_distance_loc, st_distance);
+    }
+    else
     {
         glUniformMatrix4fv(VP_loc, 1, GL_FALSE, &c.VP[0][0]);
     }

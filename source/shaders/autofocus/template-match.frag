@@ -21,7 +21,7 @@ out vec4 color;
 
 void main()
 {
-    vec2 I_xy = interpolated_texcoord * size;
+    vec2 S_xy = interpolated_texcoord * size;
 
     float sum = 0.0;
     for(int x = template_min.x; x < template_max.x; x++)
@@ -30,7 +30,7 @@ void main()
         {
             vec2 T_xy = vec2(x, y);
 
-            float S = texture(disparity_image, (I_xy + T_xy - template_min) / size).r;
+            float S = texture(disparity_image, (S_xy + T_xy - template_min) / size).r;
             float T = texture(disparity_image, T_xy / size).g;
 
             sum += pow(S-T, 2);

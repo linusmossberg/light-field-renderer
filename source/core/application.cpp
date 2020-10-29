@@ -8,7 +8,7 @@
 #include "light-field-renderer.hpp"
 
 Application::Application() : 
-    Screen(nanogui::Vector2i(1480, 750), "Light Field Renderer", true, false, false, false, false, 3U, 3U), 
+    Screen(nanogui::Vector2i(1470, 750), "Light Field Renderer", true, false, false, false, false, 3U, 3U), 
     cfg(std::make_shared<Config>())
 {
     inc_ref();
@@ -24,7 +24,7 @@ Application::Application() :
     nanogui::Label* label;
 
     window = new nanogui::Window(this, "Render");
-    window->set_position(nanogui::Vector2i(420, 10));
+    window->set_position(nanogui::Vector2i(410, 10));
     window->set_layout(new nanogui::GroupLayout());
     window->set_theme(theme);
 

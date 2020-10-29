@@ -11,7 +11,7 @@ public:
     CameraArray(const std::filesystem::path& path);
     ~CameraArray();
 
-    void bind(size_t index, int eye_loc, int VP_loc = -1);
+    void bind(size_t index, int eye_loc, int VP_loc, int st_size_loc, int st_distance_loc, float st_width, float st_distance);
 
     struct Camera
     {
