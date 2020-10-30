@@ -70,7 +70,7 @@ void LightFieldRenderer::phaseDetectionAutofocus()
 
     for (int i = 0; i < 2; i++)
     {
-        camera_array->bind(i, data_eye_loc, data_VP_loc, st_size_loc, st_distance_loc, cfg->st_width, cfg->st_distance);
+        camera_array->bind(cameras[i], data_eye_loc, data_VP_loc, st_size_loc, st_distance_loc, cfg->st_width, cfg->st_distance);
         glUniform1i(disparity_shader->getLocation("channel"), i);
         quad.draw();
     }
