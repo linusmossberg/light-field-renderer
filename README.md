@@ -2,7 +2,7 @@
 
 This is a light field renderer that can synthesize new camera views from a collection of images.
 
-<img src="https://user-images.githubusercontent.com/15798094/97102178-bb224e00-16a3-11eb-827a-88afd72a8f8d.gif" width="100%"/>
+<img src="https://user-images.githubusercontent.com/15798094/102777590-28471c80-4391-11eb-9e4d-0d4f1a4a173b.gif" width="100%"/>
 
 The renderer is mainly based on the paper [Dynamically Reparameterized Light Fields](https://dash.harvard.edu/handle/1/2634290), but additional features such as a dynamic synthetic aperture and phase detection autofocus has also been implemented. A report describing the renderer in more detail is available [here](report.pdf).
 
