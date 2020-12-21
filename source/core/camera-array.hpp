@@ -17,6 +17,7 @@ public:
     {
         glm::ivec2 size;
         glm::vec2 xy;
+        glm::uvec2 ij;
         int pixel_format;
         unsigned int texture;
 

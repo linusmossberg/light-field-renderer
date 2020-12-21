@@ -2,8 +2,7 @@
 
 #include <iostream>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <nanogui/opengl.h>
 
 #include "light-field-renderer.hpp"
 
@@ -45,9 +44,43 @@ Application::Application() :
     window->set_layout(new nanogui::GroupLayout(15, 6, 15, 0));
     window->set_theme(theme);
 
-    b = new nanogui::Button(window->button_panel(), "", FA_QUESTION);
-    b->set_font_size(15);
-    b->set_tooltip("Controls");
+    nanogui::PopupButton *info = new nanogui::PopupButton(window->button_panel(), "", FA_QUESTION);
+    info->set_font_size(15);
+    info->set_tooltip("Info");
+    nanogui::Popup *info_panel = info->popup();
+
+    info_panel->set_layout(new nanogui::GroupLayout());
+
+    auto addText = [&info_panel](std::string text, std::string font = "sans", int font_size = 18) 
+    {
+        auto row = new Widget(info_panel);
+        row->set_layout(new nanogui::BoxLayout(nanogui::Orientation::Vertical, nanogui::Alignment::Middle, 0, 10));
+        new nanogui::Label(row, text, font, font_size);
+    };
+
+    auto addControl = [&info_panel](std::string keys, std::string desc) 
+    {
+        auto row = new nanogui::Widget(info_panel);
+        row->set_layout(new nanogui::BoxLayout(nanogui::Orientation::Horizontal, nanogui::Alignment::Fill, 0, 10));
+        auto desc_widget = new nanogui::Label(row, keys, "sans-bold");
+        desc_widget->set_fixed_width(140);
+        new nanogui::Label(row, desc);
+        return desc_widget;
+    };
+
+    addText("Light Field Renderer", "sans-bold", 24);
+    addText("github.com/linusmossberg/light-field-renderer", "sans", 16);
+    addText(" ");
+
+    addControl("W", "Move forward");
+    addControl("A", "Move left");
+    addControl("S", "Move back");
+    addControl("D", "Move right");
+    addControl("SPACE", "Move up");
+    addControl("CTRL", "Move down");
+    addControl("SCROLL", "Change focus distance");
+    addControl("SHIFT + CLICK", "Autofocus");
+    addControl("MOUSE DRAG", "Mouse mode");
 
     panel = new nanogui::Widget(window);
     panel->set_layout(new nanogui::GridLayout(nanogui::Orientation::Horizontal, 2, nanogui::Alignment::Fill, 0, 5));
@@ -57,6 +90,7 @@ Application::Application() :
 
     b = new nanogui::Button(panel, "Open", FA_FOLDER_OPEN);
     b->set_fixed_size({ 270, 20 });
+    b->set_tooltip("Select any file from the light field folder.");
     b->set_callback([this]
     {
         std::string path = nanogui::file_dialog

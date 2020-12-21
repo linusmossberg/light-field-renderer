@@ -3,8 +3,7 @@
 #include <exception>
 #include <stdexcept>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <nanogui/opengl.h>
 
 Shader::Shader(const char* vert_source, const char* frag_source)
 {

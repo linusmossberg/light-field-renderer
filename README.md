@@ -54,7 +54,7 @@ focal-length 50 10 100
 focus-distance 16 10 50
 f-stop 1.8 0.1 5.6
 ```
-Unspecified properties uses the default values. All property names are available in [config.cpp](source/core/config.cpp#L59).
+Unspecified properties uses the default values. All property names are available in [config.cpp](source/core/config.cpp#L54).
 
 ## Building
 

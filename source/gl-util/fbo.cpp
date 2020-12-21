@@ -3,8 +3,7 @@
 #include <exception>
 #include <stdexcept>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <nanogui/opengl.h>
 
 FBO::FBO(const glm::ivec2 &size) : size(size), data(size.x * size.y, glm::vec4(0.0f))
 {

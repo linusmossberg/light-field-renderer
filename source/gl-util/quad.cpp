@@ -1,7 +1,6 @@
 #include "quad.hpp"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <nanogui/opengl.h>
 
 Quad::Quad()
 {

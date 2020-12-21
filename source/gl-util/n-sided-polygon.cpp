@@ -5,8 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <nanogui/opengl.h>
 
 NSidedPolygon::NSidedPolygon(int N)
 {

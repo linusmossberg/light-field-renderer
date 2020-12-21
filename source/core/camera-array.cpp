@@ -7,8 +7,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <nanogui/opengl.h>
 
 #include "util.hpp"
 
@@ -26,6 +25,8 @@ CameraArray::CameraArray(const std::filesystem::path& path)
 
     glm::vec2 max_xy(std::numeric_limits<float>::lowest());
     glm::vec2 min_xy(std::numeric_limits<float>::max());
+
+    glm::uvec2 max_ij(0);
 
     light_slab = true;
 
@@ -75,6 +76,9 @@ CameraArray::CameraArray(const std::filesystem::path& path)
             if (properties.size() == 5 && !light_slab) continue;
             if (properties.size() == 7 &&  light_slab) continue;
         }
+
+        unsigned i = std::stoi(properties[1]);
+        unsigned j = std::stoi(properties[2]);
             
         float y = -std::stof(properties[3]) * 1e-3f;
         float x =  std::stof(properties[4]) * 1e-3f;
@@ -111,6 +115,7 @@ CameraArray::CameraArray(const std::filesystem::path& path)
 
         dc.size = { width, height };
         dc.xy = { x, y };
+        dc.ij = { i, j };
         dc.pixel_format = pixel_format;
         dc.focal_length = focal_length;
         dc.sensor_width = sensor_width;
@@ -133,6 +138,9 @@ CameraArray::CameraArray(const std::filesystem::path& path)
         if (y > max_xy[1]) max_xy[1] = y;
         if (x < min_xy[0]) min_xy[0] = x;
         if (y < min_xy[1]) min_xy[1] = y;
+
+        if (i > max_ij[0]) max_ij[0] = i;
+        if (j > max_ij[1]) max_ij[1] = j;
     }
 
     std::cout << std::endl;
@@ -140,13 +148,27 @@ CameraArray::CameraArray(const std::filesystem::path& path)
     if (!cameras.empty())
     {
         xy_size = max_xy - min_xy;
+        glm::vec2 mid_xy = min_xy + xy_size / 2.0f;
+
+        if (light_slab)
+        {
+            glm::ivec2 mid_ij = max_ij / 2u;
+            for (const auto& c : cameras)
+            {
+                if (c.ij[0] == mid_ij[0] && c.ij[1] == mid_ij[1])
+                {
+                    mid_xy = c.xy;
+                    break;
+                }
+            }
+        }
+        
 
         for (size_t i = 0; i < cameras.size(); i++)
         {
             auto& c = cameras[i];
 
-            c.xy -= min_xy;
-            c.xy -= xy_size / 2.0f;
+            c.xy -= mid_xy;
 
             if (!light_slab)
             {

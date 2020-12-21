@@ -30,7 +30,7 @@ void main()
 
     vec3 linear = srgbGammaExpand(texture(image, st).xyz);
 
-    float luminance = 0.2126f * linear.r + 0.7152 * linear.g + 0.0722 * linear.b;
+    float luminance = 0.2126 * linear.r + 0.7152 * linear.g + 0.0722 * linear.b;
 
     color = vec4(0.0, 0.0, 0.0, 1.0);
     color[channel] = luminance;

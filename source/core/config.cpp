@@ -25,12 +25,12 @@ void Config::open(std::filesystem::path path)
             std::string name;
             ss >> name;
 
-            auto readProperty = [&](auto &p)
+            if (properties.find(name) != properties.end())
             {
+                auto& p = *properties[name];
+
                 float value, min, max;
-                ss >> value;
-                ss >> min;
-                ss >> max;
+                ss >> value >> min >> max;
 
                 p = Property(value, min, max, p.getScale());
 
@@ -38,11 +38,6 @@ void Config::open(std::filesystem::path path)
                 {
                     throw std::runtime_error("Invalid config file: " + name);
                 }
-            };
-
-            if (properties.find(name) != properties.end())
-            {
-                readProperty(*properties[name]);
             }
         }
     }

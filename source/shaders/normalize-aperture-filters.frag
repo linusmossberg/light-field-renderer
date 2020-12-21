@@ -20,7 +20,7 @@ in vec2 interpolated_texcoord;
 
 out vec4 color;
 
-vec3 gammaCompress(vec3 c)
+vec3 srgbGammaCompress(vec3 c)
 {
     return mix(
         1.055 * pow(c, vec3(1.0/2.4)) - 0.055,
@@ -32,5 +32,5 @@ vec3 gammaCompress(vec3 c)
 void main()
 {
     vec4 c = texture(accumulation_texture, interpolated_texcoord);
-    color.xyz = gammaCompress(exposure * c.xyz / max(max_weight_sum, c.w));
+    color.xyz = srgbGammaCompress(exposure * c.xyz / max(max_weight_sum, c.w));
 })glsl";

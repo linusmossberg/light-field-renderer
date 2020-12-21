@@ -16,7 +16,7 @@ in vec2 interpolated_texcoord;
 
 out vec4 color;
 
-vec2 gammaCompress(vec2 c)
+vec2 srgbGammaCompress(vec2 c)
 {
     return mix(
         1.055 * pow(c, vec2(1.0/2.4)) - 0.055,
@@ -34,7 +34,7 @@ void main()
     
     if(px.x < search_size.x && px.y < search_size.y)
     {
-        vec2 c = gammaCompress(texture(disparity_image, (search_min + px) / vec2(size)).xy);
+        vec2 c = srgbGammaCompress(texture(disparity_image, (search_min + px) / vec2(size)).xy);
         color = vec4(vec3(c.r), 1.0);
 
         ivec2 offset = (search_size - template_size) / 2;
@@ -57,7 +57,7 @@ void main()
         ivec2 offset = ivec2(search_size.x, 0) + (search_size - template_size) / 2;
         if(px.x < template_size.x + offset.x && px.y < template_size.y + offset.y && px.x > offset.x && px.y > offset.y)
         {
-            vec2 c = gammaCompress(texture(disparity_image, (template_min + px - offset) / vec2(size)).xy);
+            vec2 c = srgbGammaCompress(texture(disparity_image, (template_min + px - offset) / vec2(size)).xy);
             color = vec4(vec3(c.g), 1.0);
             return;
         }
@@ -65,7 +65,7 @@ void main()
         return;
     }
 
-    vec2 c = gammaCompress(texture(disparity_image, interpolated_texcoord).xy);
+    vec2 c = srgbGammaCompress(texture(disparity_image, interpolated_texcoord).xy);
 
     color = vec4(c.r, 0.5 * (c.r + c.g), c.g, 1.0);
 
