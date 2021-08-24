@@ -25,6 +25,7 @@ set(NANOGUI_BUILD_SHARED   OFF CACHE BOOL " " FORCE)
 set(NANOGUI_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
 set(NANOGUI_BUILD_PYTHON   OFF CACHE BOOL " " FORCE)
 set(NANOGUI_INSTALL        OFF CACHE BOOL " " FORCE)
+set(NANOGUI_BACKEND "OpenGL" CACHE STRING " " FORCE)
 
 add_subdirectory(lib/nanogui)
 include_directories(lib/nanogui/include)
